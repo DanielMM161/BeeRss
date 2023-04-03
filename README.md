@@ -20,18 +20,7 @@ Download the app [Here](https://github.com/DanielMM161/RssReader/raw/master/app/
 
 ## 📷 Previews
 <p align="center">
- <img src="previews/home.png" alt="drawing" width="270" />
- <img src="previews/description.png" alt="drawing" width="270" />
- <img src="previews/read_later.png" alt="drawing" width="270" />
- <img src="previews/settings.png" alt="drawing" width="270" />
-</p>
-
-## 📷 Previews Dark Mode
-<p align="center">
- <img src="previews/home_dark.png" alt="drawing" width="270" />
- <img src="previews/description_dark.png" alt="drawing" width="270" />
- <img src="previews/read_later_dark.png" alt="drawing" width="270" />
- <img src="previews/settings_dark.png" alt="drawing" width="270" />
+ <img src="previews/beerss.gif" alt="drawing" width="270" />
 </p>
 
 ## 🏛️ Architecture
