@@ -20,7 +20,14 @@ Download the app [Here](https://github.com/DanielMM161/RssReader/raw/master/app/
 
 ## 📷 Previews
 <p align="center">
- <img src="previews/beerss.gif" alt="drawing" width="270" />
+  <img src="previews/Frame1.png" alt="drawing" width="270" />
+  <img src="previews/Frame2.png" alt="drawing" width="270" />
+  <img src="previews/Frame3.png" alt="drawing" width="270" />
+  <img src="previews/Frame4.png" alt="drawing" width="270" />  
+</p>
+
+<p align="center">
+  <img src="previews/beerss.gif" alt="drawing" width="270" />
 </p>
 
 ## 🏛️ Architecture
