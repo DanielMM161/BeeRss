@@ -1,9 +1,4 @@
-# Rss Reader
-App made for the monthly challenge of [Mouredev](https://kotlinlang.org/)
-[Android Dev Blog](https://android-developers.googleblog.com)
-
-[Apple News](https://developer.apple.com/news/)
-
+# Bee Rss
 In this project I developed a Android App with:
 - MVVM architecture
 - Kotlin Coroutines
@@ -14,9 +9,6 @@ In this project I developed a Android App with:
 - Glide
 - Hilt
 - Material Design
-
-## Download The App
-Download the app [Here](https://github.com/DanielMM161/RssReader/raw/master/app/release/rssreader_dmm.apk)
 
 ## 📷 Previews
 <p align="center">
