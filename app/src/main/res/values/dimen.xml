@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <dimen name="logo_width">120dp</dimen>
+  <dimen name="logo_heigh">120dp</dimen>
+  <dimen name="slogan_text_size">34sp</dimen>
+  <dimen name="if_link_exist">10dp</dimen>
+</resources>

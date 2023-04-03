@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <variable
+      name="feed"
+      type="com.dmm.rssreader.domain.model.FeedUI" />
+  </data>
+
+  <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="105dp"
+    android:padding="8dp">
+
+    <androidx.cardview.widget.CardView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent">
+
+      <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+          android:id="@+id/image"
+          loadImage="@{feed}"
+          android:layout_width="100dp"
+          android:layout_height="100dp"
+          android:layout_alignParentStart="true"
+          android:layout_alignParentTop="true" />
+
+        <TextView
+          android:id="@+id/title"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentEnd="true"
+          android:layout_marginStart="12dp"
+          android:layout_toEndOf="@+id/image"
+          android:ellipsize="end"
+          android:fontFamily="@font/open_sans_bold"
+          android:maxLines="2"
+          android:text="@{feed.title}"
+          android:textSize="20dp"
+          tools:text="Jetpack Compose Stability Explained" />
+
+        <TextView
+          android:id="@+id/feed_source"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/title"
+          android:layout_marginStart="12dp"
+          android:layout_marginTop="2dp"
+          android:layout_toEndOf="@+id/image"
+          android:ellipsize="end"
+          android:maxLines="2"
+          android:text="@{feed.feedSource}"
+          android:textColor="@color/light_gray"
+          android:textSize="14dp"
+          android:textStyle="bold"
+          tools:text="Android Dev Blogs" />
+
+        <TextView
+          android:id="@+id/feed_date"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_below="@+id/feed_source"
+          android:layout_marginStart="12dp"
+          android:layout_marginTop="2dp"
+          android:layout_toEndOf="@+id/image"
+          android:text="@{feed.published}"
+          android:textColor="@color/light_gray"
+          android:textSize="12dp"
+          android:textStyle="bold"
+          tools:text="20-07-2022" />
+
+        <ImageButton
+          android:id="@+id/save"
+          android:layout_width="30dp"
+          android:layout_height="30dp"
+          android:layout_below="@+id/title"
+          android:layout_marginTop="2dp"
+          android:layout_marginEnd="8dp"
+          android:layout_toLeftOf="@+id/share"
+          android:background="@color/transparent"
+          android:scaleType="fitXY"
+          android:src="@drawable/bookmark_add"
+          app:tint="@color/primary" />
+
+        <ImageButton
+          android:id="@+id/share"
+          android:layout_width="30dp"
+          android:layout_height="30dp"
+          android:layout_below="@+id/title"
+          android:layout_alignParentEnd="true"
+          android:layout_marginStart="8dp"
+          android:layout_marginTop="2dp"
+          android:background="@color/transparent"
+          android:scaleType="fitXY"
+          android:src="@drawable/share"
+          app:tint="@color/black" />
+
+      </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+  </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+

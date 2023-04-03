@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <style name="BottomNavigationStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+    <item name="android:background">?android:colorBackground</item>
+  </style>
+
+  <style name="Buttons" parent="Widget.AppCompat.Button">
+    <item name="android:textColor">@color/white</item>
+  </style>
+
+  <style name="ShadowBottomNavigation" parent="">
+    <item name="android:background">@drawable/shadow_bottom_navigation_light</item>
+  </style>
+
+  <style name="AppBarStyle" parent="Widget.Design.AppBarLayout">
+    <item name="android:background">?android:colorBackground</item>
+  </style>
+
+  <style name="TextView" parent="Widget.AppCompat.TextView">
+    <item name="android:textColor">?attr/colorOnBackground</item>
+  </style>
+
+  <style name="SwitchStyle" parent="@android:style/TextAppearance.Holo.Small">
+    <item name="android:textColor">?attr/colorOnBackground</item>
+  </style>
+
+  <!--  Alert Dialog Theme Init-->
+  <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+    <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+    <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+  </style>
+
+  <style name="NegativeButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+    <item name="android:textColor">@color/alert_text_button</item>
+  </style>
+
+  <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+    <item name="android:textColor">@color/alert_text_button</item>
+  </style>
+  <!--  Alert Dialog Theme End-->
+
+  <style name="CustomSnackBarTheme" parent="Widget.MaterialComponents.Snackbar">
+    <item name="android:background">@color/background_snackbar</item>
+  </style>
+
+  <style name="SnackbarTextViewstyle" parent="Widget.MaterialComponents.Snackbar.TextView">
+    <item name="android:textColor">@color/white</item>
+  </style>
+
+
+  <!-- Divider style -->
+  <style name="Divider" parent="">
+    <item name="android:background">?attr/dividerHorizontal</item>
+    <item name="android:layout_height">5dp</item>
+    <item name="android:layout_width">match_parent</item>
+    <item name="color">@color/black</item>
+  </style>
+
+  <style name="TransparentBackgroundDialog" parent="Theme.Design.Light.BottomSheetDialog">
+    <item name="android:background">@drawable/top_border_layout</item>
+  </style>
+
+</resources>

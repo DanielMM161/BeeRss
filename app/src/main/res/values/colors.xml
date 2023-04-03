@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <color name="black">#FF000000</color>
+  <color name="white">#FFFFFFFF</color>
+  <color name="light_gray">#BFBFBF</color>
+  <color name="selected_false">#FF000000</color>
+  <color name="primary">#3E71D8</color>
+  <color name="red">#FF0000</color>
+  <color name="blue">#2B7EC0</color>
+  <color name="blue_light">#499BDC</color>
+
+  <color name="quote_background">#BDBDBD</color>
+  <color name="quote_strip">#3E71D8</color>
+  <color name="transparent">#00000000</color>
+  <color name="alert_text_button">#3E71D8</color>
+  <color name="negative_alert_text_button">#F44336</color>
+  <color name="background_snackbar">#828282</color>
+</resources>

@@ -1,0 +1,111 @@
+<resources>
+  <string name="app_name">RssReader</string>
+
+  <string name="home">Home</string>
+  <string name="bookmarks">Read Later</string>
+  <string name="settings">Settings</string>
+  <string name="feeds">Feeds</string>
+  <string name="theme">Themes</string>
+
+  <!-- Splash Activity -->
+  <string name="upload_data">Loading Data...</string>
+  <string name="checking_credentials">Checking Credentials...</string>
+  <string name="going_home_screen">Going to the Home Screen</string>
+  <string name="error_occurred">Error Occurred</string>
+
+  <!-- Login Fragment -->
+  <string name="welcome">Welcome Back</string>
+  <string name="sig_in">Sign In to continue</string>
+  <string name="Email">Email</string>
+  <string name="password">Password</string>
+  <string name="repeat_password">Repeat Password</string>
+  <string name="forget_password_login">Forget Password?</string>
+  <string name="go">Go</string>
+  <string name="dont_have_account">Don\'t have an Account?</string>
+  <string name="sing_up">SIGN UP</string>
+  <string name="not_empty">The field can\'t be empty</string>
+  <string name="or_sigin">Or Sign in With</string>
+  <string name="error_login">There was an error with Google login</string>
+  <string name="error_login_email_password">Incorrect username or password</string>
+
+  <!-- Register Fragment -->
+  <string name="welcome_register">Create Your Account</string>
+  <string name="signup">Sign up to start your new Account</string>
+  <string name="fullname">Full Name</string>
+  <string name="email">Email</string>
+  <string name="phone">Phone No</string>
+  <string name="have_account">ALREADY HAVE AN ACCOUNT? LOGIN</string>
+  <string name="title_error_creating_user">An error occurred while creating the user</string>
+  <string name="title_email_verification">Email Verification</string>
+  <string name="message_email_verification">We\'ve sent you an email to verify your account, please check your email</string>
+
+  <!-- ForgetPassword Fragment -->
+  <string name="forget_password">Forget Password</string>
+  <string name="text_forget_password">Enter your email here to reset your password, we will send you an email</string>
+  <string name="reset_password">Reset Password</string>
+  <string name="email_sent_succesfully">Email successfully sent to reset your password</string>
+  <string name="error_sending_reset_password">Failed to send password reset email</string>
+  <string name="email_was_sent">The Email was sent</string>
+
+  <!-- Home Fragment -->
+  <string name="title_home_fragment">All Articles - %s Total</string>
+  <string name="second_title_home_fragment">All Articles</string>
+  <string name="all_articles">All articles</string>
+  <string name="queryHint">Search Feeds</string>
+  <string name="total">%s Total</string>
+  <string name="date">/ %s</string>
+  <string name="any_item">Hears! It looks like you don\'t have any source enabled</string>
+  <string name="click_here">Click here to select a source</string>
+
+  <!-- ReadLater Fragment -->
+  <string name="title_readlater_fragment">Read Later</string>
+  <string name="delete_feed">%s Was removed</string>
+  <string name="undo">Undo</string>
+
+  <!-- Setting Fragment -->
+  <string name="title_settings_fragment">Settings</string>
+  <string name="all_articles_settings">All Articles</string>
+  <string name="read_later">Read Later</string>
+  <string name="all_sources">All Sources</string>
+  <string name="themes">Themes</string>
+  <string name="logout">Log Out</string>
+  <string name="title_logout">Are you sure?</string>
+  <string name="message_logout">The app will close with your account</string>
+
+  <!-- Item Icon Title -->
+  <string name="title_saved">Saved</string>
+  <string name="title_saved_fill">Saved Fill</string>
+  <string name="no_read_later">There are no Read Later stories yet</string>
+  <string name="article_will_be_here">Articles you want to read later will be\nhere</string>
+  <string name="offline">No internet connection</string>
+
+  <!-- Item Theme Options -->
+  <string name="choose_theme">Choose Theme</string>
+  <string name="day_theme">Day</string>
+  <string name="night_theme">Night</string>
+  <string name="auto_theme">Auto</string>
+
+  <!-- Feed Description Fragment -->
+  <string name="go_website">Go Website</string>
+
+  <!-- Sources Dialog Fragment -->
+  <string name="sources">Sources</string>
+
+  <!-- Validate Login/Register -->
+  <string name="email_not_blank">Email cannot be blank</string>
+  <string name="fullname_not_blank">Full name cannot be blank</string>
+  <string name="email_not_valid">That\'s not a valid Email</string>
+  <string name="password_length">The password needs to consist of at least 8 characters</string>
+  <string name="password_digit">The password needs to contain at least one letter and digit</string>
+  <string name="repeated_password">The passwords don\'t match</string>
+  <string name="email_password_not_emptu">Email &amp; Password cannot be empty</string>
+  <string name="verificate_email">You need to verify the email</string>
+  <string name="error_has_ocurred">An error has occurred</string>
+  <string name="error_title_dialog">Error</string>
+  <string name="error_get_user_document">Some errors has occurred</string>
+
+  <!-- Dialog Alert -->
+  <string name="accept">Accept</string>
+  <string name="cancel">Cancel</string>
+
+</resources>
