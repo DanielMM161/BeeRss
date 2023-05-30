@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.dmm.rssreader.domain.model.UserProfile
 import com.dmm.rssreader.domain.usecase.AuthUseCase
 import com.dmm.rssreader.domain.usecase.ValidateUseCase
@@ -12,6 +13,12 @@ import com.dmm.rssreader.utils.ValidationResult
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.AuthCredential
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -24,23 +31,36 @@ class AuthViewModel @Inject constructor(
 ) : AndroidViewModel(app) {
 
   var authUser = MutableLiveData<UserProfile>()
-  var currentUser = MutableLiveData<Resource<UserProfile>>()
+  var currentUser = MutableStateFlow<Resource<UserProfile?>>(Resource.Success())
   var userShare: UserProfile? = null
 
-  fun signInWithGoogle(authCredential: AuthCredential)  {
-    authUser = authUseCase.signInWithGoogle(authCredential)
+  fun signInWithGoogle(authCredential: AuthCredential): Flow<Resource<UserProfile>> = flow {
+    try {
+      val result = authUseCase.signInWithGoogle(authCredential)
+      emit(result)
+    } catch (e: Exception) {
+      emit(Resource.Error(e.message ?: "Error desconocido"))
+    }
   }
 
   fun createUserDocument(user: UserProfile) {
-    currentUser = authUseCase.createUserDocument(user)
+    currentUser.value = Resource.Loading()
+    viewModelScope.launch {
+      currentUser.value = authUseCase.createUserDocument(user)
+    }
   }
 
   fun createUserEmailPassword(email: String, password: String): MutableLiveData<Resource<UserProfile>> {
     return authUseCase.createUserEmailPassword(email, password)
   }
 
-  fun getUserDocument(documentPath: String) {
-    currentUser = authUseCase.getUserDocument(documentPath)
+  fun getUserDocument(documentPath: String): Flow<Resource<UserProfile>> = flow {
+    try {
+      val result = authUseCase.getUserDocument(documentPath)
+      emit(result)
+    } catch (e: Exception) {
+      emit(Resource.Error(e.message ?: "Error desconocido"))
+    }
   }
 
   fun checkIfUserIsAuthenticatedInFireBase() {

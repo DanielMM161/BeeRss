@@ -12,15 +12,15 @@ class AuthUseCase @Inject constructor(
 	private val repositoryAuth: RepositoryAuth
 ) {
 
-	fun signInWithGoogle(authCredential: AuthCredential): MutableLiveData<UserProfile> {
+	suspend fun signInWithGoogle(authCredential: AuthCredential): Resource<UserProfile> {
 		return repositoryAuth.signInWithGoogle(authCredential)
 	}
 
-	fun createUserDocument(user: UserProfile): MutableLiveData<Resource<UserProfile>> {
+	suspend fun createUserDocument(user: UserProfile): Resource<UserProfile?> {
 		return repositoryAuth.createUserDocument(user)
 	}
 
-	fun getUserDocument(documentPath: String): MutableLiveData<Resource<UserProfile>> {
+	suspend fun getUserDocument(documentPath: String): Resource<UserProfile> {
 		return repositoryAuth.getUserDocument(documentPath)
 	}
 

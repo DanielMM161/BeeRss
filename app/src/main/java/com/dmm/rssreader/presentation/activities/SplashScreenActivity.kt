@@ -6,13 +6,16 @@ import android.os.Handler
 import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.ActivitySplashScreenBinding
+import com.dmm.rssreader.domain.extension.gone
 import com.dmm.rssreader.domain.model.UserProfile
 import com.dmm.rssreader.presentation.viewModel.AuthViewModel
 import com.dmm.rssreader.utils.Constants
 import com.dmm.rssreader.utils.Resource
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SplashScreenActivity : AppCompatActivity() {
@@ -48,23 +51,24 @@ class SplashScreenActivity : AppCompatActivity() {
 	}
 
 	private fun getUserDocument(documentPath: String) {
-		binding.loadingFeedback.text = getString(R.string.upload_data)
-		authViewModel.getUserDocument(documentPath)
-		authViewModel.currentUser.observe(this) {
-			when(it) {
-				is Resource.Success -> {
-					val user = it.data
-					if(user != null) {
-						goToMainActivity(user)
+		lifecycleScope.launch {
+			authViewModel.getUserDocument(documentPath).collect {
+				when (it) {
+					is Resource.Success -> {
+						binding.progressBar.gone()
+						val user = it.data
+						if (user != null) {
+							goToMainActivity(user)
+						}
 					}
+					is Resource.ErrorCaught -> {
+						goToLoginActivity()
+					}
+					is Resource.Error -> {
+						goToLoginActivity()
+					}
+					else -> {}
 				}
-				is Resource.ErrorCaught -> {
-					goToLoginActivity()
-				}
-				is Resource.Error -> {
-					goToLoginActivity()
-				}
-				else -> {}
 			}
 		}
 	}

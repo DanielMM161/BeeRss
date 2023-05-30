@@ -17,7 +17,10 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class RepositoryAuthImpl @Inject constructor(
 	private val firebaseAuth: FirebaseAuth,
@@ -74,33 +77,34 @@ class RepositoryAuthImpl @Inject constructor(
 		return result
 	}
 
-	override fun signInWithGoogle(credential: AuthCredential): MutableLiveData<UserProfile> {
-		val authenticatedUser = MutableLiveData<UserProfile>()
-		firebaseAuth.signInWithCredential(credential).addOnCompleteListener { task ->
-			if(task.isSuccessful) {
-				val firebaseUser = firebaseAuth.currentUser
-				if(firebaseUser != null) {
-					val isNewUser = task.result.additionalUserInfo?.isNewUser!!
-					val userProfile = newUser(firebaseUser.displayName!!, firebaseUser.email!!, firebaseUser.uid, isNewUser)
-					authenticatedUser.value = userProfile
+	override suspend fun signInWithGoogle(credential: AuthCredential): Resource<UserProfile> {
+		return suspendCoroutine { continuation ->
+			firebaseAuth.signInWithCredential(credential)
+				.addOnCompleteListener { task ->
+					val firebaseUser = firebaseAuth.currentUser
+					val userProfile = firebaseUser?.run {
+						newUser(firebaseUser.displayName!!, firebaseUser.email!!, firebaseUser.uid, isNewUser = true)
+					}
+					val result = if (task.isSuccessful && firebaseUser != null) {
+						Resource.Success(userProfile)
+					} else {
+						Resource.Error(task.exception?.message ?: "Error desconocido")
+					}
+					continuation.resume(result)
 				}
-			}
 		}
-		return authenticatedUser
 	}
 
-	override fun createUserDocument(user: UserProfile): MutableLiveData<Resource<UserProfile>> {
-		val userCreated = MutableLiveData<Resource<UserProfile>>(Resource.Loading())
+	override suspend fun createUserDocument(user: UserProfile): Resource<UserProfile?> = suspendCoroutine { continuation ->
 		val docRef = db.collection(USERS_COLLECTION).document(user.email)
 		docRef.set(user)
 			.addOnCompleteListener {
 				if(!it.isSuccessful) {
-					userCreated.value = Resource.Error(it.exception?.message.toString())
+					continuation.resume(Resource.Error(it.exception?.message.toString()))
 				} else {
-					userCreated.value = Resource.Success(user)
+					continuation.resume(Resource.Success(user))
 				}
 			}
-		return userCreated
 	}
 
 	override fun sendEmailVerification(): MutableLiveData<Resource<Nothing>> {
@@ -116,24 +120,24 @@ class RepositoryAuthImpl @Inject constructor(
 		return result
 	}
 
-	override fun getUserDocument(documentPath: String): MutableLiveData<Resource<UserProfile>> {
-		val user = MutableLiveData<Resource<UserProfile>>(Resource.Loading())
-		val docRef = db.collection(USERS_COLLECTION).document(documentPath)
-		docRef.get()
-			.addOnCompleteListener {
-				if(it.isSuccessful) {
-					val document = it.result
-					if(document.exists()) {
-						val userProfile = document.toObject(UserProfile::class.java)!!
-						user.value = Resource.Success(userProfile)
+	override suspend fun getUserDocument(email: String): Resource<UserProfile> {
+		val docRef = db.collection(USERS_COLLECTION).document(email)
+		return suspendCancellableCoroutine { continuation ->
+			docRef.get()
+				.addOnCompleteListener { task ->
+					val document = task.result
+					val resource = if (document.exists() ) {
+						val userProfile = document.toObject(UserProfile::class.java)
+						Resource.Success(userProfile)
 					} else {
-						user.value = Resource.ErrorCaught(resId = R.string.error_get_user_document)
+						Resource.Error("User not found")
 					}
-				} else {
-					user.value = Resource.Error(it.exception?.message.toString())
+					continuation.resume(resource)
 				}
-			}
-		return user
+				.addOnFailureListener { exception ->
+					continuation.resume(Resource.Error(exception.message ?: "Unexpected Error"))
+				}
+		}
 	}
 
 	override fun checkIfUserIsAuthenticatedInFireBase(): MutableLiveData<UserProfile> {

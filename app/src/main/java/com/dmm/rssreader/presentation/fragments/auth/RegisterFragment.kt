@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.RegisterFragmentBinding
@@ -19,6 +20,7 @@ import com.dmm.rssreader.utils.Resource
 import com.dmm.rssreader.utils.Utils
 import com.dmm.rssreader.utils.ValidationResult
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
 
@@ -108,26 +110,28 @@ class RegisterFragment : Fragment() {
 
   private fun createUserDocument(user: UserProfile) {
     authViewModel.createUserDocument(user)
-    authViewModel.currentUser.observe(viewLifecycleOwner) {
-      when (it) {
-        is Resource.Success -> {
-          binding.progressBar.gone()
-          val user = it.data
-          if (user != null) {
-            authViewModel.userShare = user
-            sendEmailVerification()
+    lifecycleScope.launch {
+      authViewModel.currentUser.collect {
+        when (it) {
+          is Resource.Success -> {
+            binding.progressBar.gone()
+            val user = it.data
+            if (user != null) {
+              authViewModel.userShare = user
+              sendEmailVerification()
+            }
           }
-        }
-        is Resource.Error -> {
-          binding.progressBar.gone()
-          handleAlterDialog(
-            title = getString(R.string.error_occurred),
-            message = it.message
-          ) { dialogInterface ->
-            dialogInterface.cancel()
+          is Resource.Error -> {
+            binding.progressBar.gone()
+            handleAlterDialog(
+              title = getString(R.string.error_occurred),
+              message = it.message
+            ) { dialogInterface ->
+              dialogInterface.cancel()
+            }
           }
+          else -> {}
         }
-        else -> {}
       }
     }
   }
