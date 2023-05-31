@@ -12,6 +12,7 @@ import com.dmm.rssreader.utils.Resource
 import com.dmm.rssreader.utils.ValidationResult
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -24,81 +25,66 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-  app: Application,
-  private val authUseCase: AuthUseCase,
-  private val validateUseCase: ValidateUseCase,
-  private val firebaseAnalytics: FirebaseAnalytics
+	app: Application,
+	private val authUseCase: AuthUseCase,
+	private val validateUseCase: ValidateUseCase,
+	private val firebaseAnalytics: FirebaseAnalytics
 ) : AndroidViewModel(app) {
 
-  var authUser = MutableLiveData<UserProfile>()
-  var currentUser = MutableStateFlow<Resource<UserProfile?>>(Resource.Success())
-  var userShare: UserProfile? = null
+	var userShare: UserProfile? = null
 
-  fun signInWithGoogle(authCredential: AuthCredential): Flow<Resource<UserProfile>> = flow {
-    try {
-      val result = authUseCase.signInWithGoogle(authCredential)
-      emit(result)
-    } catch (e: Exception) {
-      emit(Resource.Error(e.message ?: "Error desconocido"))
-    }
-  }
+	suspend fun signInWithGoogle(authCredential: AuthCredential): Resource<UserProfile> {
+		return authUseCase.signInWithGoogle(authCredential)
+	}
 
-  fun createUserDocument(user: UserProfile) {
-    currentUser.value = Resource.Loading()
-    viewModelScope.launch {
-      currentUser.value = authUseCase.createUserDocument(user)
-    }
-  }
+	suspend fun createUserDocument(user: UserProfile): Resource<UserProfile> {
+		return authUseCase.createUserDocument(user)
+	}
 
-  fun createUserEmailPassword(email: String, password: String): MutableLiveData<Resource<UserProfile>> {
-    return authUseCase.createUserEmailPassword(email, password)
-  }
+	suspend fun getUserDocument(documentPath: String): Resource<UserProfile>{
+		return authUseCase.getUserDocument(documentPath)
+	}
 
-  fun getUserDocument(documentPath: String): Flow<Resource<UserProfile>> = flow {
-    try {
-      val result = authUseCase.getUserDocument(documentPath)
-      emit(result)
-    } catch (e: Exception) {
-      emit(Resource.Error(e.message ?: "Error desconocido"))
-    }
-  }
+	fun createUserEmailPassword(email: String, password: String): MutableLiveData<Resource<UserProfile>> {
+		return authUseCase.createUserEmailPassword(email, password)
+	}
 
-  fun checkIfUserIsAuthenticatedInFireBase() {
-    authUser = authUseCase.checkIfUserIsAuthenticatedInFireBase()
-  }
+	fun checkUserIsAuthenticated(): FirebaseUser? {
+		return authUseCase.checkUserIsAuthenticated()
+	}
 
-  fun signInEmailPassword(email: String, password: String): MutableLiveData<Resource<Boolean>>  {
-    return authUseCase.signInEmailPassword(email, password)
-  }
+	fun signInEmailPassword(email: String, password: String): MutableLiveData<Resource<Boolean>>  {
+		return authUseCase.signInEmailPassword(email, password)
+	}
 
-  fun validateEmail(email: String): ValidationResult {
-    return validateUseCase.validateEmail(email)
-  }
+	fun validateEmail(email: String): ValidationResult {
+		return validateUseCase.validateEmail(email)
+	}
 
-  fun validateFullName(fullName: String): ValidationResult {
-    return validateUseCase.validateFullName(fullName)
-  }
+	fun validateFullName(fullName: String): ValidationResult {
+		return validateUseCase.validateFullName(fullName)
+	}
 
-  fun validatePassword(password: String): ValidationResult {
-    return validateUseCase.validatePassword(password)
-  }
+	fun validatePassword(password: String): ValidationResult {
+		return validateUseCase.validatePassword(password)
+	}
 
-  fun validateRepeatPassword(password: String, repeatPassword: String): ValidationResult {
-    return validateUseCase.validateRepeatedPassword(password, repeatPassword)
-  }
+	fun validateRepeatPassword(password: String, repeatPassword: String): ValidationResult {
+		return validateUseCase.validateRepeatedPassword(password, repeatPassword)
+	}
 
-  fun resetPassword(email: String): MutableLiveData<Resource<Nothing>> {
-    return authUseCase.resetPassword(email)
-  }
+	fun resetPassword(email: String): MutableLiveData<Resource<Nothing>> {
+		return authUseCase.resetPassword(email)
+	}
 
-  fun sendEmailVerification(): MutableLiveData<Resource<Nothing>> {
-    return authUseCase.sendEmailVerification()
-  }
+	fun sendEmailVerification(): MutableLiveData<Resource<Nothing>> {
+		return authUseCase.sendEmailVerification()
+	}
 
-  fun logEvent(parameter: String) {
-    val params = Bundle()
-    params.putString(FirebaseAnalytics.Param.METHOD, parameter)
-    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, params)
-  }
+	fun logEvent(parameter: String) {
+		val params = Bundle()
+		params.putString(FirebaseAnalytics.Param.METHOD, parameter)
+		firebaseAnalytics.logEvent(FirebaseAnalytics.Event.LOGIN, params)
+	}
 
 }

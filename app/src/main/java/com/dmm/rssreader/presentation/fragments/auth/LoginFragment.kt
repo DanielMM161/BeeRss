@@ -28,8 +28,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.internal.wait
 
 class LoginFragment : Fragment() {
 
@@ -79,16 +82,18 @@ class LoginFragment : Fragment() {
 	private fun signInGoogleAuthCredential(authCredential: AuthCredential) {
 		binding.progressBar.show()
 		lifecycleScope.launch {
-			authViewModel.signInWithGoogle(authCredential).collect {
-				when(it) {
+			var result = authViewModel.signInWithGoogle(authCredential)
+			withContext(Dispatchers.Main) {
+				when(result) {
 					is Resource.Success -> {
-						var user = it.data
+						var user = result.data
 						getUserDocument(user?.email ?: "", user)
 					}
 					is Resource.Error -> {
+						binding.progressBar.gone()
 						handleAlterDialog(
 							title = getString(R.string.error_login),
-							message = it.message
+							message = result.message
 						)
 					}
 				}
@@ -132,14 +137,12 @@ class LoginFragment : Fragment() {
 
 	private fun getUserDocument(documentPath: String, userProfile: UserProfile? = null) {
 		lifecycleScope.launch {
-			authViewModel.getUserDocument(documentPath).collect {
-				when (it) {
+			var result = authViewModel.getUserDocument(documentPath)
+			withContext(Dispatchers.Main) {
+				when (result) {
 					is Resource.Success -> {
-						val user = it.data
-						if (user != null) {
-							binding.progressBar.gone()
-							goToMainActivity(user)
-						}
+						binding.progressBar.gone()
+						goToMainActivity(result.data!!)
 					}
 					is Resource.Error -> {
 						// User Not Found, Create a new One
@@ -151,20 +154,18 @@ class LoginFragment : Fragment() {
 	}
 
 	private fun createUserDocument(user: UserProfile) {
-		authViewModel.createUserDocument(user)
-		lifecycleScope.launch {
-			authViewModel.currentUser.collect {
-				when (it) {
+		lifecycleScope.launch(Dispatchers.IO) {
+			var result = authViewModel.createUserDocument(user)
+			withContext(Dispatchers.Main) {
+				when (result) {
 					is Resource.Success -> {
 						binding.progressBar.gone()
-						if (it.data != null) {
-							goToMainActivity(it.data)
-						}
+						goToMainActivity(result.data!!)
 					}
 					is Resource.Error -> {
 						binding.progressBar.gone()
 						handleAlterDialog(
-							message = it.message,
+							message = result.message,
 							title = getString(R.string.error_title_dialog)
 						)
 					}

@@ -6,6 +6,7 @@ import com.dmm.rssreader.domain.model.UserProfile
 import com.dmm.rssreader.domain.repositories.RepositoryAuth
 import com.dmm.rssreader.utils.Resource
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 import javax.inject.Inject
 
 class AuthUseCase @Inject constructor(
@@ -16,7 +17,7 @@ class AuthUseCase @Inject constructor(
 		return repositoryAuth.signInWithGoogle(authCredential)
 	}
 
-	suspend fun createUserDocument(user: UserProfile): Resource<UserProfile?> {
+	suspend fun createUserDocument(user: UserProfile): Resource<UserProfile> {
 		return repositoryAuth.createUserDocument(user)
 	}
 
@@ -24,8 +25,8 @@ class AuthUseCase @Inject constructor(
 		return repositoryAuth.getUserDocument(documentPath)
 	}
 
-	fun checkIfUserIsAuthenticatedInFireBase(): MutableLiveData<UserProfile> {
-		return repositoryAuth.checkIfUserIsAuthenticatedInFireBase()
+	fun checkUserIsAuthenticated(): FirebaseUser? {
+		return repositoryAuth.checkUserIsAuthenticated()
 	}
 
 	fun signInEmailPassword(email: String, password: String): MutableLiveData<Resource<Boolean>> {

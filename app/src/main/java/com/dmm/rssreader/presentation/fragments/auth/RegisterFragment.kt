@@ -109,29 +109,27 @@ class RegisterFragment : Fragment() {
   }
 
   private fun createUserDocument(user: UserProfile) {
-    authViewModel.createUserDocument(user)
     lifecycleScope.launch {
-      authViewModel.currentUser.collect {
-        when (it) {
-          is Resource.Success -> {
-            binding.progressBar.gone()
-            val user = it.data
-            if (user != null) {
-              authViewModel.userShare = user
-              sendEmailVerification()
-            }
+      var result = authViewModel.createUserDocument(user)
+      when (result) {
+        is Resource.Success -> {
+          binding.progressBar.gone()
+          val user = result.data
+          if (user != null) {
+            authViewModel.userShare = user
+            sendEmailVerification()
           }
-          is Resource.Error -> {
-            binding.progressBar.gone()
-            handleAlterDialog(
-              title = getString(R.string.error_occurred),
-              message = it.message
-            ) { dialogInterface ->
-              dialogInterface.cancel()
-            }
-          }
-          else -> {}
         }
+        is Resource.Error -> {
+          binding.progressBar.gone()
+          handleAlterDialog(
+            title = getString(R.string.error_occurred),
+            message = result.message
+          ) { dialogInterface ->
+            dialogInterface.cancel()
+          }
+        }
+        else -> {}
       }
     }
   }

@@ -15,7 +15,9 @@ import com.dmm.rssreader.presentation.viewModel.AuthViewModel
 import com.dmm.rssreader.utils.Constants
 import com.dmm.rssreader.utils.Resource
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
 class SplashScreenActivity : AppCompatActivity() {
@@ -40,26 +42,21 @@ class SplashScreenActivity : AppCompatActivity() {
 	}
 
 	private fun checkIfUserAuthenticated() {
-		authViewModel.checkIfUserIsAuthenticatedInFireBase()
-		authViewModel.authUser.observe(this) { user ->
-			if(!user.isAuthenticated) {
-				goToLoginActivity()
-			} else {
-				getUserDocument(user.email)
-			}
+		val firebaseUser = authViewModel.checkUserIsAuthenticated()
+		if (firebaseUser == null) {
+			goToLoginActivity()
 		}
+		getUserDocument(firebaseUser?.email!!)
 	}
 
 	private fun getUserDocument(documentPath: String) {
 		lifecycleScope.launch {
-			authViewModel.getUserDocument(documentPath).collect {
-				when (it) {
+			var result = authViewModel.getUserDocument(documentPath)
+			withContext(Dispatchers.Main) {
+				when (result) {
 					is Resource.Success -> {
 						binding.progressBar.gone()
-						val user = it.data
-						if (user != null) {
-							goToMainActivity(user)
-						}
+						goToMainActivity(result.data!!)
 					}
 					is Resource.ErrorCaught -> {
 						goToLoginActivity()

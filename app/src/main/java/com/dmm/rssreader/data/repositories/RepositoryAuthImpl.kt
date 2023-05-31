@@ -16,8 +16,13 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import okhttp3.internal.wait
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -95,16 +100,22 @@ class RepositoryAuthImpl @Inject constructor(
 		}
 	}
 
-	override suspend fun createUserDocument(user: UserProfile): Resource<UserProfile?> = suspendCoroutine { continuation ->
-		val docRef = db.collection(USERS_COLLECTION).document(user.email)
-		docRef.set(user)
-			.addOnCompleteListener {
-				if(!it.isSuccessful) {
-					continuation.resume(Resource.Error(it.exception?.message.toString()))
-				} else {
-					continuation.resume(Resource.Success(user))
+	override suspend fun createUserDocument(user: UserProfile): Resource<UserProfile> {
+		return suspendCoroutine { continuation ->
+			val document = db.collection(USERS_COLLECTION).document(user.email)
+			document.set(user)
+				.addOnCompleteListener {
+					val result = if (it.isSuccessful) {
+						Resource.Success(user)
+					} else {
+						Resource.Error(it.exception?.message ?: "Unkown Error Create User")
+					}
+					continuation.resume(result)
 				}
-			}
+				.addOnFailureListener {
+					continuation.resume(Resource.Error(it.message ?: "Unkown Error Create User"))
+				}
+		}
 	}
 
 	override fun sendEmailVerification(): MutableLiveData<Resource<Nothing>> {
@@ -121,38 +132,27 @@ class RepositoryAuthImpl @Inject constructor(
 	}
 
 	override suspend fun getUserDocument(email: String): Resource<UserProfile> {
-		val docRef = db.collection(USERS_COLLECTION).document(email)
-		return suspendCancellableCoroutine { continuation ->
-			docRef.get()
-				.addOnCompleteListener { task ->
-					val document = task.result
-					val resource = if (document.exists() ) {
-						val userProfile = document.toObject(UserProfile::class.java)
+		return suspendCoroutine { continuation ->
+			var document = db.collection(USERS_COLLECTION).document(email)
+			document.get()
+				.addOnCompleteListener {
+					var docu = it.result
+					var result = if (docu.exists()) {
+						val userProfile = docu.toObject(UserProfile::class.java)
 						Resource.Success(userProfile)
 					} else {
 						Resource.Error("User not found")
 					}
-					continuation.resume(resource)
+					continuation.resume(result)
 				}
-				.addOnFailureListener { exception ->
-					continuation.resume(Resource.Error(exception.message ?: "Unexpected Error"))
+				.addOnFailureListener {
+					continuation.resume(Resource.Error(it.message ?: "Unkown Error : User not found"))
 				}
 		}
 	}
 
-	override fun checkIfUserIsAuthenticatedInFireBase(): MutableLiveData<UserProfile> {
-		val user = MutableLiveData(UserProfile())
-		val fireAuth = firebaseAuth.currentUser
-		if(fireAuth != null) {
-			val userAuthenticated = UserProfile(
-				isAuthenticated = true,
-				userUid = fireAuth.uid,
-				email = fireAuth.email!!,
-				fullName = fireAuth.displayName!!
-			)
-			user.value = userAuthenticated
-		}
-		return user
+	override fun checkUserIsAuthenticated(): FirebaseUser? {
+		return firebaseAuth.currentUser
 	}
 
 	override fun signOut() {
