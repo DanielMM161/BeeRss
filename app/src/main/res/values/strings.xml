@@ -26,6 +26,7 @@
   <string name="not_empty">The field can\'t be empty</string>
   <string name="or_sigin">Or Sign in With</string>
   <string name="error_login">There was an error with Google login</string>
+  <string name="title_error_login">Error Login</string>
   <string name="error_login_email_password">Incorrect username or password</string>
 
   <!-- Register Fragment -->
@@ -98,7 +99,7 @@
   <string name="password_length">The password needs to consist of at least 8 characters</string>
   <string name="password_digit">The password needs to contain at least one letter and digit</string>
   <string name="repeated_password">The passwords don\'t match</string>
-  <string name="email_password_not_emptu">Email &amp; Password cannot be empty</string>
+  <string name="email_password_not_empty">Email &amp; Password cannot be empty</string>
   <string name="verificate_email">You need to verify the email</string>
   <string name="error_has_ocurred">An error has occurred</string>
   <string name="error_title_dialog">Error</string>

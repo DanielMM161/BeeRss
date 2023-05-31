@@ -12,17 +12,10 @@ import com.dmm.rssreader.utils.Constants.SOURCE_DEVELOPER_CO
 import com.dmm.rssreader.utils.Constants.SOURCE_KOTLIN_WEEKLY
 import com.dmm.rssreader.utils.Constants.USERS_COLLECTION
 import com.dmm.rssreader.utils.Resource
-import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.suspendCancellableCoroutine
-import okhttp3.internal.wait
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -32,54 +25,41 @@ class RepositoryAuthImpl @Inject constructor(
 	private val db: FirebaseFirestore,
 ) : RepositoryAuth{
 
-	override fun signInEmailPassword(email: String, password: String): MutableLiveData<Resource<Boolean>> {
-		val emailUser = MutableLiveData<Resource<Boolean>>(Resource.Loading())
-		if(email.isNotEmpty() && password.isNotEmpty()) {
+	override suspend fun signInEmailPassword(email: String, password: String): Resource<Boolean> {
+		return suspendCoroutine { continuation ->
 			firebaseAuth.signInWithEmailAndPassword(email, password)
 				.addOnCompleteListener { task ->
-					val currentUser = firebaseAuth.currentUser
-					if(currentUser != null) {
-						currentUser.let {
-							val emailVerified = it.isEmailVerified
-							if(emailVerified) {
-								emailUser.value = checkSignInEmailPassword(task)
-							} else if(!emailVerified) {
-								emailUser.value = Resource.ErrorCaught(resId = R.string.verificate_email)
-							} else {
-								emailUser.value = Resource.ErrorCaught(resId = R.string.error_has_ocurred)
-							}
+					if (task.isSuccessful) {
+						val result = if (task.result.user?.isEmailVerified!!) {
+							Resource.Success(true)
+						} else {
+							Resource.ErrorCaught(resId = R.string.verificate_email)
 						}
-					} else {
-						emailUser.value = checkSignInEmailPassword(task)
+						continuation.resume(result)
 					}
 				}
-		} else {
-			emailUser.value = Resource.ErrorCaught(resId = R.string.email_password_not_emptu)
-		}
-		return emailUser
-	}
-
-	private fun checkSignInEmailPassword(task: Task<AuthResult>): Resource<Boolean> {
-		if(task.isSuccessful) {
-			return Resource.Success(true)
-		} else {
-			return Resource.Error(task.exception?.message.toString())
-		}
-	}
-
-	override fun createUserEmailPassword(email: String, password: String): MutableLiveData<Resource<UserProfile>> {
-		val result = MutableLiveData<Resource<UserProfile>>(Resource.Loading())
-		firebaseAuth.createUserWithEmailAndPassword(email, password)
-			.addOnCompleteListener {
-				if(it.isSuccessful) {
-					val firebaseUser = firebaseAuth.currentUser
-					val user = newUser("", email, firebaseUser?.uid!!, isNewUser = true)
-					result.value = Resource.Success(user)
-				} else {
-					result.value = Resource.Error(it.exception?.message.toString())
+				.addOnFailureListener {
+					continuation.resume(Resource.Error(it.message ?: "Unkown Error in Sign In"))
 				}
-			}
-		return result
+		}
+	}
+
+	override suspend fun signUp(fullName: String, email: String, password: String): Resource<UserProfile> {
+		return suspendCoroutine{ continuation ->
+			firebaseAuth.createUserWithEmailAndPassword(email, password)
+				.addOnCompleteListener {
+					val currentUser = it.result.user
+					val result = if (it.isSuccessful && currentUser != null) {
+						Resource.Success(newUser(fullName, email, currentUser?.uid!!))
+					} else {
+						Resource.Error(it.exception?.message.toString())
+					}
+					continuation.resume(result)
+				}
+				.addOnFailureListener {
+					continuation.resume(Resource.Error(it.message ?: "Unknown Error in SignUp"))
+				}
+		}
 	}
 
 	override suspend fun signInWithGoogle(credential: AuthCredential): Resource<UserProfile> {
@@ -87,11 +67,8 @@ class RepositoryAuthImpl @Inject constructor(
 			firebaseAuth.signInWithCredential(credential)
 				.addOnCompleteListener { task ->
 					val firebaseUser = firebaseAuth.currentUser
-					val userProfile = firebaseUser?.run {
-						newUser(firebaseUser.displayName!!, firebaseUser.email!!, firebaseUser.uid, isNewUser = true)
-					}
 					val result = if (task.isSuccessful && firebaseUser != null) {
-						Resource.Success(userProfile)
+						Resource.Success(newUser(firebaseUser.displayName!!, firebaseUser.email!!, firebaseUser.uid))
 					} else {
 						Resource.Error(task.exception?.message ?: "Error desconocido")
 					}
@@ -118,26 +95,35 @@ class RepositoryAuthImpl @Inject constructor(
 		}
 	}
 
-	override fun sendEmailVerification(): MutableLiveData<Resource<Nothing>> {
-		val result =  MutableLiveData<Resource<Nothing>>(Resource.Loading())
-		val firebaseUser = firebaseAuth.currentUser
-		firebaseUser?.sendEmailVerification()?.addOnCompleteListener {
-			if(it.isSuccessful) {
-				result.value = Resource.Success()
-			} else {
-				result.value = Resource.Error(it.exception?.message.toString())
+	override suspend fun sendEmailVerification(): Resource<Nothing> {
+		return suspendCoroutine { continuation ->
+			try {
+				val firebaseUser = firebaseAuth.currentUser
+				firebaseUser?.sendEmailVerification()
+					?.addOnCompleteListener {
+						val result = if(it.isSuccessful) {
+							Resource.Success(null)
+						} else {
+							Resource.Error(it.exception?.message.toString())
+						}
+						continuation.resume(result)
+					}
+					?.addOnFailureListener {
+						continuation.resume(Resource.Error(it.message ?: "Unkown error in Send Email Verification"))
+					}
+			} catch(e: Exception) {
+				continuation.resume(Resource.Error(e.message ?: "Unkown error in Send Email Verification"))
 			}
 		}
-		return result
 	}
 
-	override suspend fun getUserDocument(email: String): Resource<UserProfile> {
+	override suspend fun getUserDocument(documentPath: String): Resource<UserProfile> {
 		return suspendCoroutine { continuation ->
-			var document = db.collection(USERS_COLLECTION).document(email)
+			val document = db.collection(USERS_COLLECTION).document(documentPath)
 			document.get()
 				.addOnCompleteListener {
-					var docu = it.result
-					var result = if (docu.exists()) {
+					val docu = it.result
+					val result = if (docu.exists()) {
 						val userProfile = docu.toObject(UserProfile::class.java)
 						Resource.Success(userProfile)
 					} else {
@@ -171,12 +157,11 @@ class RepositoryAuthImpl @Inject constructor(
 		return result
 	}
 
-	private fun newUser(fullName: String, email: String, userUid: String, isNewUser: Boolean): UserProfile {
+	private fun newUser(fullName: String, email: String, userUid: String): UserProfile {
 		return UserProfile(
 			fullName = fullName,
 			email = email,
 			userUid = userUid,
-			isNew = isNewUser,
 			theme = Constants.THEME_DAY,
 			feeds = mutableListOf(
 				SOURCE_ANDROID_MEDIUM,

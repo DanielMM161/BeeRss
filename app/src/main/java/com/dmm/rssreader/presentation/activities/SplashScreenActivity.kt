@@ -26,7 +26,7 @@ class SplashScreenActivity : AppCompatActivity() {
 	private lateinit var authViewModel: AuthViewModel
 
 	companion object {
-		var SPLASH_SCREEN: Long = 2000;
+		var SPLASH_SCREEN: Long = 2000
 	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,13 +45,14 @@ class SplashScreenActivity : AppCompatActivity() {
 		val firebaseUser = authViewModel.checkUserIsAuthenticated()
 		if (firebaseUser == null) {
 			goToLoginActivity()
+		} else {
+			getUserDocument(firebaseUser.email ?: "")
 		}
-		getUserDocument(firebaseUser?.email!!)
 	}
 
 	private fun getUserDocument(documentPath: String) {
 		lifecycleScope.launch {
-			var result = authViewModel.getUserDocument(documentPath)
+			val result = authViewModel.getUserDocument(documentPath)
 			withContext(Dispatchers.Main) {
 				when (result) {
 					is Resource.Success -> {

@@ -2,7 +2,6 @@ package com.dmm.rssreader.presentation.fragments.auth
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -29,10 +28,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.internal.wait
 
 class LoginFragment : Fragment() {
 
@@ -59,7 +56,7 @@ class LoginFragment : Fragment() {
 		validateField()
 		loginEmailPassword()
 		initGoogleSignInClient()
-		logginWithGoogle()
+		loginWithGoogle()
 		goToForgetPassword()
 	}
 
@@ -82,11 +79,11 @@ class LoginFragment : Fragment() {
 	private fun signInGoogleAuthCredential(authCredential: AuthCredential) {
 		binding.progressBar.show()
 		lifecycleScope.launch {
-			var result = authViewModel.signInWithGoogle(authCredential)
+			val result = authViewModel.signInWithGoogle(authCredential)
 			withContext(Dispatchers.Main) {
-				when(result) {
+				when (result) {
 					is Resource.Success -> {
-						var user = result.data
+						val user = result.data
 						getUserDocument(user?.email ?: "", user)
 					}
 					is Resource.Error -> {
@@ -96,6 +93,7 @@ class LoginFragment : Fragment() {
 							message = result.message
 						)
 					}
+					else -> {}
 				}
 			}
 		}
@@ -107,29 +105,34 @@ class LoginFragment : Fragment() {
 			binding.progressBar.show()
 			val email = binding.username.editText?.text.toString()
 			val password = binding.password.editText?.text.toString()
-			authViewModel.signInEmailPassword(email, password).observe(viewLifecycleOwner) {
-				when (it) {
-					is Resource.Success -> {
-						var user = authViewModel.userShare
-						if (user != null) {
-							goToMainActivity(user)
-						} else {
+
+			if (email.isEmpty() && password.isEmpty()) {
+				binding.progressBar.gone()
+				handleAlterDialog(
+					message = getString(R.string.email_password_not_empty),
+					title = getString(R.string.title_email_verification),
+				)
+			} else {
+				lifecycleScope.launch {
+					val result = authViewModel.signInEmailPassword(email, password)
+					when (result) {
+						is Resource.Success -> {
 							getUserDocument(email)
 						}
+						is Resource.Error -> {
+							handleAlterDialog(
+								title = getString(R.string.title_error_login),
+								message = result.message
+							)
+						}
+						is Resource.ErrorCaught -> {
+							handleAlterDialog(
+								message = result.asString(context),
+								title = getString(R.string.title_email_verification),
+							)
+						}
+						else -> {}
 					}
-					is Resource.Error -> {
-						handleAlterDialog(
-							title = getString(R.string.title_email_verification),
-							message = it.message
-						)
-					}
-					is Resource.ErrorCaught -> {
-						handleAlterDialog(
-							message = it.asString(context),
-							title = getString(R.string.title_email_verification),
-						)
-					}
-					else -> {}
 				}
 			}
 		}
@@ -137,7 +140,7 @@ class LoginFragment : Fragment() {
 
 	private fun getUserDocument(documentPath: String, userProfile: UserProfile? = null) {
 		lifecycleScope.launch {
-			var result = authViewModel.getUserDocument(documentPath)
+			val result = authViewModel.getUserDocument(documentPath)
 			withContext(Dispatchers.Main) {
 				when (result) {
 					is Resource.Success -> {
@@ -148,6 +151,7 @@ class LoginFragment : Fragment() {
 						// User Not Found, Create a new One
 						userProfile?.let { user -> createUserDocument(user) }
 					}
+					else -> {}
 				}
 			}
 		}
@@ -155,7 +159,7 @@ class LoginFragment : Fragment() {
 
 	private fun createUserDocument(user: UserProfile) {
 		lifecycleScope.launch(Dispatchers.IO) {
-			var result = authViewModel.createUserDocument(user)
+			val result = authViewModel.createUserDocument(user)
 			withContext(Dispatchers.Main) {
 				when (result) {
 					is Resource.Success -> {
@@ -169,6 +173,7 @@ class LoginFragment : Fragment() {
 							title = getString(R.string.error_title_dialog)
 						)
 					}
+					else -> {}
 				}
 			}
 		}
@@ -229,7 +234,7 @@ class LoginFragment : Fragment() {
 		signInGoogleAuthCredential(authCredential)
 	}
 
-	private fun logginWithGoogle() {
+	private fun loginWithGoogle() {
 		binding.googleIcon.setOnClickListener {
 			binding.progressBar.show()
 			authViewModel.logEvent("Google")
@@ -237,6 +242,9 @@ class LoginFragment : Fragment() {
 		}
 	}
 
+	@Deprecated(
+		message = "onActivityResult"
+	)
 	override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 		super.onActivityResult(requestCode, resultCode, data)
 		if (requestCode == GOOGLE_SIGN_IN) {

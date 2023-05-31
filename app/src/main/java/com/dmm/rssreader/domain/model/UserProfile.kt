@@ -13,7 +13,6 @@ data class UserProfile(
 	var photoUrl: String = "",
 	var theme: String = "",
 	var feeds: MutableList<String> = mutableListOf(),
-	val isNew: Boolean = false,
 	val isAuthenticated: Boolean = false,
 	val userUid: String = "",
 	val favouritesFeeds: @RawValue MutableList<FeedUI> = mutableListOf()

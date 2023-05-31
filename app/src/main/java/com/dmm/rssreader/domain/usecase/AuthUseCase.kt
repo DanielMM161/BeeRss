@@ -1,6 +1,5 @@
 package com.dmm.rssreader.domain.usecase
 
-import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import com.dmm.rssreader.domain.model.UserProfile
 import com.dmm.rssreader.domain.repositories.RepositoryAuth
@@ -29,12 +28,12 @@ class AuthUseCase @Inject constructor(
 		return repositoryAuth.checkUserIsAuthenticated()
 	}
 
-	fun signInEmailPassword(email: String, password: String): MutableLiveData<Resource<Boolean>> {
+	suspend fun signInEmailPassword(email: String, password: String): Resource<Boolean> {
 		return repositoryAuth.signInEmailPassword(email, password)
 	}
 
-	fun createUserEmailPassword(email: String, password: String): MutableLiveData<Resource<UserProfile>> {
-		return repositoryAuth.createUserEmailPassword(email, password)
+	suspend fun signUp(fullName: String, email: String, password: String): Resource<UserProfile> {
+		return repositoryAuth.signUp(fullName, email, password)
 	}
 
 	fun signOut() {
@@ -45,7 +44,7 @@ class AuthUseCase @Inject constructor(
 		return repositoryAuth.resetPassword(email)
 	}
 
-	fun sendEmailVerification(): MutableLiveData<Resource<Nothing>> {
+	suspend fun sendEmailVerification(): Resource<Nothing> {
 		return repositoryAuth.sendEmailVerification()
 	}
 }
