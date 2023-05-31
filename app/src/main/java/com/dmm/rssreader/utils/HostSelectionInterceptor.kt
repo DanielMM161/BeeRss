@@ -11,33 +11,20 @@ import java.net.URISyntaxException
 import javax.inject.Singleton
 
 @Singleton
-class HostSelectionInterceptor : Interceptor {
+class HostSelectionInterceptor() : Interceptor {
 	@Volatile
-	private var host = "".toHttpUrlOrNull()
+	private var dynamicUrl = "";
 
-	fun setHostBaseUrl(url: String) {
-		host = url.toHttpUrlOrNull()
+	fun setDynamicUrl(url: String) {
+		dynamicUrl = url;
 	}
-
 	@NotNull
 	@Throws(IOException::class)
 	override fun intercept(chain: Interceptor.Chain): Response {
-		var request: Request = chain.request()
-		if (host != null) {
-			var newUrl: HttpUrl? = null
-			try {
-				newUrl = request.url.newBuilder()
-					.scheme(host!!.scheme)
-					.host(host!!.toUrl().toURI().host)
-					.build()
-			} catch (e: URISyntaxException) {
-				e.printStackTrace()
-			}
-			assert(newUrl != null)
-			request = request.newBuilder()
-				.url(newUrl!!)
-				.build()
-		}
-		return chain.proceed(request)
+		val originalRequest = chain.request()
+		val modifieRequest = originalRequest.newBuilder()
+			.url(dynamicUrl + originalRequest.url.encodedPath)
+			.build()
+		return chain.proceed(modifieRequest)
 	}
 }

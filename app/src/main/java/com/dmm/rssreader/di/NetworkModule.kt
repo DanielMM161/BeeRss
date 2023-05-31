@@ -24,67 +24,18 @@ object NetworkModule {
 
 	@Provides
 	@Singleton
-	@Named("AndroidBlogs")
-	fun provideRetrofitAndroidBlogs(okHttpClient: OkHttpClient): Retrofit {
-		return getRetrofitInstance(DEVELOPER_ANDROID_BLOG, okHttpClient)
+	fun provideRetrofitApi(okHttpClient: OkHttpClient): Retrofit {
+		return Retrofit.Builder()
+			.baseUrl("https://my.fake.url/")
+			.client(okHttpClient)
+			.addConverterFactory(ScalarsConverterFactory.create())
+			.build()
 	}
 
 	@Provides
 	@Singleton
-	@Named("AndroidMedium")
-	fun provideRetrofitAndroidMedium(okHttpClient: OkHttpClient): Retrofit {
-		return getRetrofitInstance(DEVELOPER_MEDIUM, okHttpClient)
-	}
-
-	@Provides
-	@Singleton
-	@Named("AndroidDevelopers")
-	fun provideRetrofitAndroidDevelopers(okHttpClient: OkHttpClient): Retrofit {
-		return getRetrofitInstance(ANDROID_DEVELOPERS, okHttpClient)
-	}
-
-	@Provides
-	@Singleton
-	@Named("KotlinWeekly")
-	fun provideRetrofitKotlinWeekly(okHttpClient: OkHttpClient): Retrofit {
-		return getRetrofitInstance(KOTLIN_WEEKLY, okHttpClient)
-	}
-
-	@Provides
-	@Singleton
-	@Named("DanLew")
-	fun provideRetrofitDanLew(okHttpClient: OkHttpClient): Retrofit {
-		return getRetrofitInstance(DANLEW_BLOG, okHttpClient)
-	}
-
-	@Provides
-	@Singleton
-	fun provideAndroidBlogsApi(@Named("AndroidBlogs") retrofit: Retrofit): ServiceAndroidBlogs {
-		return retrofit.create(ServiceAndroidBlogs::class.java)
-	}
-
-	@Provides
-	@Singleton
-	fun provideAndroidMediumApi(@Named("AndroidMedium") retrofit: Retrofit): ServiceDevsMedium {
-		return retrofit.create(ServiceDevsMedium::class.java)
-	}
-
-	@Provides
-	@Singleton
-	fun provideAndroidDevelopersApi(@Named("AndroidDevelopers") retrofit: Retrofit): ServiceAndroidDevelopers {
-		return retrofit.create(ServiceAndroidDevelopers::class.java)
-	}
-
-	@Provides
-	@Singleton
-	fun provideKotlinWeeklyApi(@Named("KotlinWeekly") retrofit: Retrofit): ServiceKotlinWeekly {
-		return retrofit.create(ServiceKotlinWeekly::class.java)
-	}
-
-	@Provides
-	@Singleton
-	fun provideDanLewApi(@Named("DanLew") retrofit: Retrofit): ServiceDanLew {
-		return retrofit.create(ServiceDanLew::class.java)
+	fun provideApiService(retrofit: Retrofit): ApiService {
+		return retrofit.create(ApiService::class.java)
 	}
 
 	@Provides
@@ -103,14 +54,6 @@ object NetworkModule {
 			.addInterceptor(hostSelectionInterceptor!!)
 			.connectTimeout(10, TimeUnit.SECONDS)
 			.readTimeout(10, TimeUnit.SECONDS)
-			.build()
-	}
-
-	private fun getRetrofitInstance(baseUrl: String, okHttpClient: OkHttpClient): Retrofit {
-		return Retrofit.Builder()
-			.baseUrl(baseUrl)
-			.client(okHttpClient)
-			.addConverterFactory(ScalarsConverterFactory.create())
 			.build()
 	}
 }

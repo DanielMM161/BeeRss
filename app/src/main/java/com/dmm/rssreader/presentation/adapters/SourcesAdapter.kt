@@ -5,22 +5,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import com.dmm.rssreader.databinding.ItemSourcesBinding
-import com.dmm.rssreader.domain.model.SingleSources
+import com.dmm.rssreader.domain.model.Source
 
 class SourcesAdapter(
-	private val sourceList: List<SingleSources>,
-	private val userFeeds: List<String>,
-	private val onCheckedChangeListener: ((String, Boolean) -> Unit)
-	) : BaseAdapter() {
+	private val sources: List<Source>,
+	private val userFeeds: List<Int>,
+	private val onCheckedChangeListener: ((Int, Boolean) -> Unit)
+) : BaseAdapter() {
 
 	private lateinit var binding: ItemSourcesBinding
 
 	override fun getCount(): Int {
-		return sourceList.size
+		return sources.size
 	}
 
-	override fun getItem(pos: Int): SingleSources {
-		return sourceList[pos]
+	override fun getItem(pos: Int): Source {
+		return sources[pos]
 	}
 
 	override fun getItemId(pos: Int): Long {
@@ -34,14 +34,16 @@ class SourcesAdapter(
 			false
 		)
 		val item = getItem(pos)
+		binding.source = item
 		binding.titleSource.text = item.title
-		binding.imageSoruce.setImageResource(item.imageRes)
+
 		// Auto Selected Source
-		if(userFeeds.contains(item.title)) {
+		if(userFeeds.contains(item.id)) {
 			binding.switchSource.isChecked = true
 		}
+
 		binding.switchSource.setOnCheckedChangeListener { _, isChecked ->
-			onCheckedChangeListener.invoke(item.title, isChecked)
+			onCheckedChangeListener.invoke(item.id, isChecked)
 		}
 
 		return binding.root

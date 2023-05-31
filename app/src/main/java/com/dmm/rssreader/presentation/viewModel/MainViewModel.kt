@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.dmm.rssreader.MainApplication
 import com.dmm.rssreader.domain.model.FeedUI
+import com.dmm.rssreader.domain.model.Source
 import com.dmm.rssreader.domain.model.UserProfile
 import com.dmm.rssreader.domain.usecase.*
 import com.dmm.rssreader.utils.Constants
@@ -31,11 +32,13 @@ class MainViewModel @Inject constructor(
 	app: Application,
 	private val feedsUseCase: FeedsUseCase,
 	private val fireBaseUseCase: FireBaseUseCase,
+	private val sourceUseCase: SourceUseCase,
 	private val authUseCase: AuthUseCase,
 	private val firebaseAnalytics: FirebaseAnalytics
 ) : AndroidViewModel(app) {
 
 	lateinit var userProfile: UserProfile
+	var sources: List<Source> = listOf()
 	private var _developerFeeds = MutableStateFlow<Resource<List<FeedUI>?>>(Resource.Loading())
 	val developerFeeds = _developerFeeds.asStateFlow()
 
@@ -44,21 +47,36 @@ class MainViewModel @Inject constructor(
 
 	var searchText: String = ""
 
+	init {
+		// First bring all the sources then the Feeds
+		viewModelScope.launch {
+			sourceUseCase.fetchSources().collect { result ->
+				sources = result
+				fetchFeedsDeveloper()
+			}
+		}
+	}
+
 	fun userProfileInitialized(): Boolean {
 		return this::userProfile.isInitialized
 	}
 
 	fun fetchFeedsDeveloper() = viewModelScope.launch {
-			_developerFeeds.value = Resource.Loading()
-			var listFeed: MutableList<FeedUI> = mutableListOf()
+		_developerFeeds.value = Resource.Loading()
+		var listFeed: MutableList<FeedUI> = mutableListOf()
 
-			userProfile.feeds.forEach { feed ->
-				feedsUseCase.fetchFeeds(feed).data?.forEach { feedUI ->
-					listFeed.add(feedUI)
-				}
+		val filterSource = sources.filter {
+			it.id in userProfile.feeds
+		}
+
+		filterSource.forEach { source ->
+			feedsUseCase.fetchFeeds(source.baseUrl, source.route, source.title).data?.forEach { feedUI ->
+				listFeed.add(feedUI)
 			}
-			saveFavouriteFeedsInLocal(listFeed)
-			setDeveloperFeeds(listFeed)
+		}
+
+		saveFavouriteFeedsInLocal(listFeed)
+		setDeveloperFeeds(listFeed)
 	}
 
 	fun findFeeds(text: String): List<FeedUI>? {
@@ -90,11 +108,11 @@ class MainViewModel @Inject constructor(
 		return fireBaseUseCase.saveUser(userProfile)
 	}
 
-	fun setFeed(feedName: String): MutableLiveData<Resource<Nothing>> {
-		if (userProfile.feeds.contains(feedName)) {
-			userProfile.feeds.remove(feedName)
+	fun setFeed(sourceId: Int): MutableLiveData<Resource<Nothing>> {
+		if (userProfile.feeds.contains(sourceId)) {
+			userProfile.feeds.remove(sourceId)
 		} else {
-			userProfile.feeds.add(feedName)
+			userProfile.feeds.add(sourceId)
 		}
 		return fireBaseUseCase.saveUser(userProfile)
 	}

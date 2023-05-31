@@ -163,13 +163,7 @@ class RepositoryAuthImpl @Inject constructor(
 			email = email,
 			userUid = userUid,
 			theme = Constants.THEME_DAY,
-			feeds = mutableListOf(
-				SOURCE_ANDROID_MEDIUM,
-				SOURCE_ANDROID_BLOGS,
-				SOURCE_KOTLIN_WEEKLY,
-				SOURCE_DANLEW_BLOG,
-				SOURCE_DEVELOPER_CO
-			)
+			feeds = mutableListOf()
 		)
 	}
 }

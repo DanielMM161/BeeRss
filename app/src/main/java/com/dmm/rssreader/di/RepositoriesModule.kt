@@ -20,4 +20,9 @@ abstract class RepositoriesModule {
 	abstract fun bindRepositoryFeeds(
 		repoFeeds: RepositoryFeedsImpl
 	): RepositoryFeeds
+
+	@Binds
+	abstract fun bindRepositorySource(
+		repoSource: RepositorySourceImpl
+	): RepositorySource
 }

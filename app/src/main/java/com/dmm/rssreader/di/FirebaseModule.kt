@@ -2,13 +2,11 @@ package com.dmm.rssreader.di
 
 import android.content.Context
 import com.dmm.rssreader.R
-import com.dmm.rssreader.utils.Constants.USERS_COLLECTION
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
@@ -33,11 +31,6 @@ object FirebaseModule {
 		return FirebaseFirestore.getInstance()
 	}
 
-	@Provides
-	@Singleton
-	fun provideDocumentReference(firestore: FirebaseFirestore): CollectionReference {
-		return firestore.collection(USERS_COLLECTION)
-	}
 
 	@Provides
 	@Singleton
