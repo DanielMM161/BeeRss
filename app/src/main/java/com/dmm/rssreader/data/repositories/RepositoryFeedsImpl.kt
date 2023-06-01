@@ -1,33 +1,35 @@
 package com.dmm.rssreader.data.repositories
 
-import android.provider.SyncStateContract.Helpers.update
+import android.util.Log
 import com.dmm.rssreader.data.network.apis.*
 import com.dmm.rssreader.data.persistence.FeedsDao
 import com.dmm.rssreader.domain.model.FeedUI
 import com.dmm.rssreader.domain.repositories.RepositoryFeeds
 import com.dmm.rssreader.utils.Constants.USERS_COLLECTION
 import com.dmm.rssreader.utils.FeedParser
-import com.dmm.rssreader.utils.HostSelectionInterceptor
 import com.dmm.rssreader.utils.Resource
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.*
+import okhttp3.OkHttpClient
 import retrofit2.Response
-import retrofit2.awaitResponse
+import retrofit2.Retrofit
+import retrofit2.converter.scalars.ScalarsConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class RepositoryFeedsImpl @Inject constructor(
 	private val feedsDao: FeedsDao,
 	private val fireStore: FirebaseFirestore,
-	private val apiService: ApiService,
-	private val urlInterceptor: HostSelectionInterceptor,
 ) : RepositoryFeeds {
 
 	override suspend fun fetchFeeds(baseUrl: String, route: String, sourceTitle: String): Resource<List<FeedUI>?> {
 		var result = feedsDao.getFeedsList(sourceTitle)
 
 		if(result.isEmpty()) {
-			urlInterceptor.setDynamicUrl(baseUrl)
-			result = handleResponse(apiService.fetchData(route).awaitResponse(), sourceTitle)
+			val retrofit = createRetrofit(baseUrl)
+			val apiService = retrofit.create(ApiService::class.java)
+
+			result = handleResponse(apiService.fetchData(route).execute(), sourceTitle)
 
 			setFavouritesFeeds(result)
 			saveDataLocal(result)
@@ -70,10 +72,33 @@ class RepositoryFeedsImpl @Inject constructor(
 	}
 
 	private fun handleResponse(response: Response<String>, source: String): List<FeedUI> {
-		var result: List<FeedUI> = listOf()
-		if(response.isSuccessful) {
-			result = FeedParser().parse(response.body()!!, source)
+		try {
+			var result: List<FeedUI> = listOf()
+			val body = response.body() ?: ""
+			Log.e("handleResponse ", "${source} -- ${body.length}")
+			if(response.isSuccessful && body.isNotEmpty()) {
+				result = FeedParser().parse(body, source)
+			}
+			return result
+		} catch (e: Exception) {
+			Log.e("ERROR IN HANDLE RESPONSE --->  ", "${e.message}")
+			return listOf()
 		}
-		return result
+	}
+
+	private fun createRetrofit(baseUrl: String): Retrofit {
+		var okHttpClient = OkHttpClient().newBuilder()
+			.retryOnConnectionFailure(true)
+			.followRedirects(true)
+			.followSslRedirects(true)
+			.connectTimeout(10, TimeUnit.SECONDS)
+			.readTimeout(10, TimeUnit.SECONDS)
+			.build()
+
+		return Retrofit.Builder()
+			.baseUrl(baseUrl)
+			.client(okHttpClient)
+			.addConverterFactory(ScalarsConverterFactory.create())
+			.build()
 	}
 }

@@ -6,6 +6,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
@@ -21,11 +22,16 @@ import com.dmm.rssreader.utils.Constants.THEME_NIGHT
 import com.dmm.rssreader.utils.Resource
 import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -70,8 +76,8 @@ class MainViewModel @Inject constructor(
 		}
 
 		filterSource.forEach { source ->
-			feedsUseCase.fetchFeeds(source.baseUrl, source.route, source.title).data?.forEach { feedUI ->
-				listFeed.add(feedUI)
+			viewModelScope.launch(Dispatchers.IO) {
+				var result = feedsUseCase.fetchFeeds(source.baseUrl, source.route, source.title)
 			}
 		}
 

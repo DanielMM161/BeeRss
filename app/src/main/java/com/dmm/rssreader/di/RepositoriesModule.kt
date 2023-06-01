@@ -25,4 +25,5 @@ abstract class RepositoriesModule {
 	abstract fun bindRepositorySource(
 		repoSource: RepositorySourceImpl
 	): RepositorySource
+
 }
