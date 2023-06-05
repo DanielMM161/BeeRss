@@ -17,7 +17,13 @@ sealed class Resource<T>(
 		if (context != null) {
 			return when(this) {
 				is Error -> message
-				is ErrorCaught -> context.getString(resId)
+				is ErrorCaught -> {
+					if (data == null) {
+						context.getString(resId)
+					}
+					val text = context.getString(resId)
+					String.format(text, data)
+				}
 				else -> ""
 			}
 		}

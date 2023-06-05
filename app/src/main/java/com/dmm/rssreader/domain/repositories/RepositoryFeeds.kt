@@ -5,11 +5,11 @@ import com.dmm.rssreader.utils.Resource
 import kotlinx.coroutines.flow.Flow
 
 interface RepositoryFeeds {
-	suspend fun fetchFeeds(baseUrl: String, route: String, sourceTitle: String): Resource<List<FeedUI>?>
-	suspend fun saveDataLocal(feedUI: List<FeedUI>)
-	suspend fun updateFeed(favorite: Boolean, title: String)
+	suspend fun fetchFeeds(baseUrl: String, route: String, sourceTitle: String): List<FeedUI>
+	suspend fun insertFeedLocal(feedUI: List<FeedUI>)
+	suspend fun updateFeedLocal(favorite: Boolean, title: String)
+	suspend fun getAllFeedsLocal(): List<FeedUI>
 	suspend fun deleteTable()
-	suspend fun deleteFeeds(sourceFeed: String)
-	fun getFavouriteFeeds(): Flow<List<FeedUI>>
-	fun updateFavouritesFeedsFireBase(favouriteFeeds: List<FeedUI>, documentPath: String)
+	suspend fun deleteFeedLocal(sourceTitle: String)
+	suspend fun getFavouriteFeedsLocal(): List<FeedUI>
 }

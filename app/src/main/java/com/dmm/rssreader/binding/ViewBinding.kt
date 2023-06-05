@@ -4,8 +4,6 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.dmm.rssreader.R
-import com.dmm.rssreader.data.local.ContentResources.contentResources
-import com.dmm.rssreader.domain.model.FeedUI
 
 object ViewBinding {
 

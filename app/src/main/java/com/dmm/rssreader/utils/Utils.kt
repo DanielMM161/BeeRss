@@ -25,12 +25,6 @@ class Utils {
 			}
 		}
 
-		fun showToast(context: Context?, message: String) {
-			context?.let {
-				Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-			}
-		}
-
 		fun alertDialog(
 			context: Context?,
 			message: String,
@@ -60,6 +54,10 @@ class Utils {
 
 				alertDialog.create().show()
 			}
+		}
+
+		fun <T> merge(first: Collection<T>, second: Collection<T>): Collection<T> {
+			return first.plus(second)
 		}
 	}
 }

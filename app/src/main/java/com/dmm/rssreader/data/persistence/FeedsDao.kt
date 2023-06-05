@@ -25,4 +25,7 @@ interface FeedsDao {
 
 	@Query("SELECT * FROM feeds WHERE feed_source = :feedSource")
 	suspend fun getFeedsList(feedSource: String): List<FeedUI>
+
+	@Query("SELECT * FROM feeds")
+	suspend fun getAllFeeds(): List<FeedUI>
 }

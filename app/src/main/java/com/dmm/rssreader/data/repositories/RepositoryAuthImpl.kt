@@ -97,23 +97,19 @@ class RepositoryAuthImpl @Inject constructor(
 
 	override suspend fun sendEmailVerification(): Resource<Nothing> {
 		return suspendCoroutine { continuation ->
-			try {
-				val firebaseUser = firebaseAuth.currentUser
-				firebaseUser?.sendEmailVerification()
-					?.addOnCompleteListener {
-						val result = if(it.isSuccessful) {
-							Resource.Success(null)
-						} else {
-							Resource.Error(it.exception?.message.toString())
-						}
-						continuation.resume(result)
+			val firebaseUser = firebaseAuth.currentUser
+			firebaseUser?.sendEmailVerification()
+				?.addOnCompleteListener {
+					val result = if(it.isSuccessful) {
+						Resource.Success(null)
+					} else {
+						Resource.Error(it.exception?.message.toString())
 					}
-					?.addOnFailureListener {
-						continuation.resume(Resource.Error(it.message ?: "Unkown error in Send Email Verification"))
-					}
-			} catch(e: Exception) {
-				continuation.resume(Resource.Error(e.message ?: "Unkown error in Send Email Verification"))
-			}
+					continuation.resume(result)
+				}
+				?.addOnFailureListener {
+					continuation.resume(Resource.Error(it.message ?: "Unkown error in Send Email Verification"))
+				}
 		}
 	}
 

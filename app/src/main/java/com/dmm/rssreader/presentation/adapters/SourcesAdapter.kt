@@ -9,8 +9,8 @@ import com.dmm.rssreader.domain.model.Source
 
 class SourcesAdapter(
 	private val sources: List<Source>,
-	private val userFeeds: List<Int>,
-	private val onCheckedChangeListener: ((Int, Boolean) -> Unit)
+	private val userFeeds: List<Source>,
+	private val onCheckedChangeListener: ((Source) -> Unit)
 ) : BaseAdapter() {
 
 	private lateinit var binding: ItemSourcesBinding
@@ -38,12 +38,12 @@ class SourcesAdapter(
 		binding.titleSource.text = item.title
 
 		// Auto Selected Source
-		if(userFeeds.contains(item.id)) {
+		if(userFeeds.contains(item)) {
 			binding.switchSource.isChecked = true
 		}
 
-		binding.switchSource.setOnCheckedChangeListener { _, isChecked ->
-			onCheckedChangeListener.invoke(item.id, isChecked)
+		binding.switchSource.setOnCheckedChangeListener { _, _ ->
+			onCheckedChangeListener.invoke(item)
 		}
 
 		return binding.root

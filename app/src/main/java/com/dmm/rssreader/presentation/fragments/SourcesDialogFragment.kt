@@ -1,10 +1,15 @@
 package com.dmm.rssreader.presentation.fragments
 
 import android.content.DialogInterface
+import androidx.lifecycle.lifecycleScope
 import com.dmm.rssreader.databinding.SourcesDialogFragmentBinding
+import com.dmm.rssreader.domain.model.Source
 import com.dmm.rssreader.presentation.adapters.SourcesAdapter
+import com.dmm.rssreader.utils.NotificationsUI.Companion.showToast
 import com.dmm.rssreader.utils.Resource
-import com.dmm.rssreader.utils.Utils.Companion.showToast
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 
 class SourcesDialogFragment : BaseBottomSheetDialogFragment<SourcesDialogFragmentBinding>(
 	SourcesDialogFragmentBinding::inflate
@@ -15,18 +20,26 @@ class SourcesDialogFragment : BaseBottomSheetDialogFragment<SourcesDialogFragmen
 	override fun setupUI() {
 		super.setupUI()
 		binding.listSources.apply {
-			adapter = SourcesAdapter(viewModel.sources, viewModel.userProfile.feeds) { sourceId, _ ->
-				setFeed(sourceId)
+			adapter = SourcesAdapter(viewModel.sources, viewModel.userProfile.feeds) { source ->
+				setFeed(source)
 			}
 		}
 	}
 
-	private fun setFeed(sourceId: Int) {
-		viewModel.setFeed(sourceId).observe(this) {
-			when(it) {
-				is Resource.Error -> showToast(context, it.message)
+	private fun setFeed(source: Source) {
+		viewModel.setUserFeed(source)
+
+		lifecycleScope.launch(Dispatchers.IO) {
+			val feeds = viewModel.userProfile.feeds
+			val result = viewModel.updateUser(feeds, "feeds")
+			when (result) {
+				is Resource.Error -> {
+					showToast(context, result.message)
+				}
+				else -> {}
 			}
 		}
+
 	}
 
 	fun setOnCancelClick(listener: () -> Unit) {

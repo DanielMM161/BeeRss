@@ -1,33 +1,35 @@
 package com.dmm.rssreader.data.repositories
 
-import androidx.lifecycle.MutableLiveData
-import com.dmm.rssreader.domain.model.UserProfile
 import com.dmm.rssreader.domain.repositories.RepositoryFireBase
 import com.dmm.rssreader.utils.Constants
 import com.dmm.rssreader.utils.Resource
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class RepositoryFireBaseImpl @Inject constructor(
   private val db: FirebaseFirestore,
 ) : RepositoryFireBase {
 
-  override fun saveUser(userProfile: UserProfile): MutableLiveData<Resource<Nothing>> {
-    val result = MutableLiveData<Resource<Nothing>>(Resource.Loading())
-    getDBCollection(userProfile.email)
-      .set(userProfile)
-      .addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-          result.value = Resource.Success()
-        } else {
-          result.value = Resource.Error(task.exception?.message.toString())
+  override suspend fun <T> updateUser(documentPath: String, data: T, property: String): Resource<Boolean> {
+    return suspendCoroutine { continuation ->
+      getDBCollection(documentPath)
+        .update(mapOf( property to data))
+        .addOnCompleteListener { task ->
+          val result = if (task.isSuccessful) {
+            Resource.Success(true)
+          } else {
+            Resource.Error(task.exception?.message.toString())
+          }
+          continuation.resume(result)
         }
-      }
-    return result
+    }
   }
 
-  override fun getDBCollection(documentPath: String?): DocumentReference {
+
+  private fun getDBCollection(documentPath: String?): DocumentReference {
     return db.collection(Constants.USERS_COLLECTION).document(documentPath!!)
   }
 }

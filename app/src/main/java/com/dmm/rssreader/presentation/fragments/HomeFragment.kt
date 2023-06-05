@@ -12,10 +12,10 @@ import com.dmm.rssreader.domain.extension.gone
 import com.dmm.rssreader.domain.extension.show
 import com.dmm.rssreader.presentation.activities.MainActivity
 import com.dmm.rssreader.presentation.adapters.FeedAdapter
-import com.dmm.rssreader.utils.Resource
 import com.dmm.rssreader.utils.Utils.Companion.isNightMode
-import com.dmm.rssreader.utils.Utils.Companion.showToast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomeFragment : BaseFragment<HomeFragmentBinding>(
 	HomeFragmentBinding::inflate
@@ -26,20 +26,17 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 	override fun setupUI() {
 		super.setupUI()
 
-		viewLifecycleOwner.lifecycleScope.launch {
+		lifecycleScope.launch(Dispatchers.IO) {
 			viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-				launch {
-					viewModel.fetchFeedsDeveloper()
-				}
-				launch {
-					subscribeObservableDeveloperFeeds()
-				}
+				viewModel.fetchFeedsDeveloper()
 			}
 		}
+
 		setUpRecyclerView()
 		onRefreshListener()
 		searchFeed()
 		setColorSwipeRefresh()
+		collectFeedsDeveloper()
 	}
 
 	private fun searchFeed() {
@@ -85,6 +82,10 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 		shareClickListener()
 	}
 
+	/**
+	 * When user drag down the swipe,
+	 * drop the local database and  fetch the data again
+	 */
 	private fun onRefreshListener() {
 		binding.swipeRefresh.setOnRefreshListener {
 			viewModel.deleteTable()
@@ -92,38 +93,27 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 		}
 	}
 
-	private suspend fun subscribeObservableDeveloperFeeds() {
-		viewModel.developerFeeds.collect {
-			when (it) {
-				is Resource.Loading -> {
-					binding.swipeRefresh.isRefreshing = true
-				}
-				is Resource.Success -> {
-					it.data?.let { feeds ->
-						if(feeds.isEmpty()) {
-							showNoItemText()
-						} else {
-              binding.noItemText.gone()
-              binding.noItemBtn.gone()
-						}
-						binding.swipeRefresh.isRefreshing = false
-						binding.totalArticles = feeds.size
-						setMaterialToolbarFromActivity(feeds.size.toString())
-						if(viewModel.searchText.isNotEmpty()) {
-							searchFeeds()
-						} else {
-							feedAdapter.differ.submitList(feeds)
-						}
+	private fun collectFeedsDeveloper() {
+		binding.swipeRefresh.isRefreshing = true
+		lifecycleScope.launch(Dispatchers.IO) {
+			withContext(Dispatchers.Main) {
+				viewModel.developerFeeds.collect {
+					val feeds = it.data ?: listOf()
+					if(feeds.isEmpty()) {
+						showNoItemText()
+					} else {
+						binding.noItemText.gone()
+						binding.noItemBtn.gone()
 					}
-				}
-				is Resource.Error -> {
+					binding.totalArticles = feeds.size
+					setMaterialToolbarFromActivity(feeds.size.toString())
+					if(viewModel.searchText.isNotEmpty()) {
+						searchFeeds()
+					} else {
+						feedAdapter.differ.submitList(feeds)
+					}
 					binding.swipeRefresh.isRefreshing = false
-					showToast(context, it.message)
-				}
-				is Resource.ErrorCaught -> {
-					binding.swipeRefresh.isRefreshing = false
-					val message = it.asString(context)
-					showToast(context, message)
+					feedAdapter.differ.submitList(feeds)
 				}
 			}
 		}

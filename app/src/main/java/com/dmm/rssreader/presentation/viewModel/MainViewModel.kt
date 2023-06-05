@@ -15,12 +15,15 @@ import com.dmm.rssreader.MainApplication
 import com.dmm.rssreader.domain.model.FeedUI
 import com.dmm.rssreader.domain.model.Source
 import com.dmm.rssreader.domain.model.UserProfile
+import com.dmm.rssreader.domain.repositories.RepositoryFeeds
 import com.dmm.rssreader.domain.usecase.*
 import com.dmm.rssreader.utils.Constants
 import com.dmm.rssreader.utils.Constants.THEME_DAY
 import com.dmm.rssreader.utils.Constants.THEME_NIGHT
 import com.dmm.rssreader.utils.Resource
+import com.dmm.rssreader.utils.Utils
 import com.google.firebase.analytics.FirebaseAnalytics
+import dagger.hilt.android.internal.Contexts.getApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +39,7 @@ import kotlin.time.Duration.Companion.seconds
 @HiltViewModel
 class MainViewModel @Inject constructor(
 	app: Application,
-	private val feedsUseCase: FeedsUseCase,
+	private val repoFeeds: RepositoryFeeds,
 	private val fireBaseUseCase: FireBaseUseCase,
 	private val sourceUseCase: SourceUseCase,
 	private val authUseCase: AuthUseCase,
@@ -54,11 +57,9 @@ class MainViewModel @Inject constructor(
 	var searchText: String = ""
 
 	init {
-		// First bring all the sources then the Feeds
 		viewModelScope.launch {
 			sourceUseCase.fetchSources().collect { result ->
 				sources = result
-				fetchFeedsDeveloper()
 			}
 		}
 	}
@@ -68,21 +69,14 @@ class MainViewModel @Inject constructor(
 	}
 
 	fun fetchFeedsDeveloper() = viewModelScope.launch {
-		_developerFeeds.value = Resource.Loading()
 		var listFeed: MutableList<FeedUI> = mutableListOf()
 
-		val filterSource = sources.filter {
-			it.id in userProfile.feeds
-		}
+		userProfile.feeds.forEach { source ->
+			val result = repoFeeds.fetchFeeds(source.baseUrl, source.route, source.title)
+			listFeed += result
 
-		filterSource.forEach { source ->
-			viewModelScope.launch(Dispatchers.IO) {
-				var result = feedsUseCase.fetchFeeds(source.baseUrl, source.route, source.title)
-			}
 		}
-
-		saveFavouriteFeedsInLocal(listFeed)
-		setDeveloperFeeds(listFeed)
+		_developerFeeds.value = Resource.Success(listFeed)
 	}
 
 	fun findFeeds(text: String): List<FeedUI>? {
@@ -91,73 +85,56 @@ class MainViewModel @Inject constructor(
 		}
 	}
 
-	private suspend fun saveFavouriteFeedsInLocal(listFeed: MutableList<FeedUI>) {
-		userProfile.favouritesFeeds.forEach { favouriteFeed ->
-			val feed = listFeed.find { it.title == favouriteFeed.title }
-			if (feed != null) {
-				feed.favourite = true
-				feedsUseCase.updateFavouriteFeed(feed.favourite, feed.title)
-			}
-		}
-	}
-
-	private fun setDeveloperFeeds(feedUIList: List<FeedUI>?) {
-		if (feedUIList != null) {
-			_developerFeeds.value = sortedFeed(feedUIList.filter { it -> !it.description!!.isEmpty() }.distinct())
+	fun setUserFeed(source: Source) {
+		if (userProfile.feeds.contains(source)) {
+			userProfile.feeds.remove(source)
 		} else {
-			_developerFeeds.value = Resource.Success(listOf())
+			userProfile.feeds.add(source)
 		}
 	}
 
-	fun setTheme(theme: String): MutableLiveData<Resource<Nothing>> {
-		userProfile.theme = theme
-		return fireBaseUseCase.saveUser(userProfile)
-	}
-
-	fun setFeed(sourceId: Int): MutableLiveData<Resource<Nothing>> {
-		if (userProfile.feeds.contains(sourceId)) {
-			userProfile.feeds.remove(sourceId)
-		} else {
-			userProfile.feeds.add(sourceId)
+	private fun deleteFeed(sourceTitle: String) {
+		viewModelScope.launch {
+			repoFeeds.deleteFeedLocal(sourceTitle)
+			_developerFeeds.value = Resource.Success(repoFeeds.getAllFeedsLocal())
 		}
-		return fireBaseUseCase.saveUser(userProfile)
 	}
 
-	fun saveFavouriteFeed(feedSelected: FeedUI) = viewModelScope.launch {
-		updateFavouritesFeedsFireBase(feedSelected)
+	suspend fun <T> updateUser(data: T, property: String): Resource<Boolean> {
+		return fireBaseUseCase.updateUser(userProfile.email, data, property )
+	}
+
+	/**
+	 * Save the favourite feed in a local way and remote way as well setting it in the
+	 * user profile when is remote
+	 */
+	fun saveFavouriteFeed(feedSelected: FeedUI, callback: () -> Unit = {}) = viewModelScope.launch {
+		setFavouriteUserFeed(feedSelected)
+		updateUser(userProfile.favouritesFeeds, "favouriteFeeds")
+
 		feedSelected.favourite = !feedSelected.favourite
-		feedsUseCase.updateFavouriteFeed(feedSelected.favourite, feedSelected.title)
-		getFavouriteFeeds()
+		repoFeeds.updateFeedLocal(feedSelected.favourite, feedSelected.title)
+		callback()
 	}
 
-	fun updateFavouritesFeedsFireBase(feedSelected: FeedUI) {
-		if (userProfile.favouritesFeeds.contains(feedSelected)) {
+	private fun setFavouriteUserFeed(feedSelected: FeedUI) {
+		if (userProfile.favouritesFeeds.contains(feedSelected))
 			userProfile.favouritesFeeds.remove(feedSelected)
-		} else {
+		else
 			userProfile.favouritesFeeds.add(feedSelected.copy(favourite = true))
-		}
-		feedsUseCase.updateFavouritesFeedsFireBase(
-			userProfile.favouritesFeeds,
-			userProfile.email
-		)
+
 	}
 
 	fun getFavouriteFeeds() = viewModelScope.launch {
-		feedsUseCase.getFavouriteFeeds().collect{
-			_favouritesFeeds.value = it
-		}
+		_favouritesFeeds.value = repoFeeds.getFavouriteFeedsLocal()
 	}
 
-	private fun sortedFeed(feeds: List<FeedUI>?): Resource<List<FeedUI>?> {
-		val dateEmptyList = feeds?.filter { it.published!!.isEmpty()  }
-		val dateNoEmptyList = feeds?.filter { it.published!!.isNotEmpty()  }
-		val sortedFeeds = dateNoEmptyList!!.sortedByDescending {
-			LocalDate.parse(it.published, DateTimeFormatter.ofPattern(Constants.DATE_PATTERN_OUTPUT))
-		}.toMutableList()
-		dateEmptyList?.forEach {
-			sortedFeeds.add(it)
-		}
-		return Resource.Success(sortedFeeds.toList())
+	private fun sortedFeed(feeds: List<FeedUI>): List<FeedUI> {
+		val dateEmptyList = feeds.filter { it.published.isEmpty() }
+		val sortedFeeds = feeds.filter { it.published.isNotEmpty() }
+			.sortedByDescending { LocalDate.parse(it.published, DateTimeFormatter.ofPattern(Constants.DATE_PATTERN_OUTPUT)) }
+
+		return Utils.merge(sortedFeeds, dateEmptyList).toList()
 	}
 
 	fun autoSelectedTheme() {
@@ -172,12 +149,11 @@ class MainViewModel @Inject constructor(
 	}
 
 	fun signOut() {
-		logSignUp()
 		authUseCase.signOut()
 	}
 
 	fun deleteTable() = viewModelScope.launch {
-		feedsUseCase.deleteTable()
+		repoFeeds.deleteTable()
 	}
 
 	fun logSelectItem(value: String) {
@@ -191,12 +167,6 @@ class MainViewModel @Inject constructor(
 		params.putString(FirebaseAnalytics.Param.CONTENT_TYPE, contentType)
 		params.putString(FirebaseAnalytics.Param.ITEM_ID, itemId)
 		firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE, params)
-	}
-
-	private fun logSignUp() {
-		val params = Bundle()
-		params.putString(FirebaseAnalytics.Param.METHOD, "google")
-		firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SIGN_UP, params)
 	}
 
 	private fun hasInternetConnection(): Boolean {

@@ -15,14 +15,16 @@ class FeedAdapter() : RecyclerView.Adapter<FeedAdapter.FeedAdapterViewHolder>() 
 		fun bind(feedUI: FeedUI) {
 			binding.feed = feedUI
 			setImageResourceImageButton(binding, feedUI.favourite)
+
 			binding.share.setOnClickListener {
 				shareClickListener?.let {
 					it(listOf(feedUI.link ?: "", feedUI.feedSource, feedUI.title))
 				}
 			}
+
 			binding.save.setOnClickListener {
+				setImageResourceImageButton(binding, !feedUI.favourite)
 				readLaterOnItemClickListener?.let { it(feedUI) }
-				setImageResourceImageButton(binding, feedUI.favourite)
 			}
 		}
 	}

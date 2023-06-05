@@ -57,6 +57,7 @@
   <string name="date">/ %s</string>
   <string name="any_item">Hears! It looks like you don\'t have any source enabled</string>
   <string name="click_here">Click here to select a source</string>
+  <string name="error_resource">The were a error with the resource %s</string>
 
   <!-- ReadLater Fragment -->
   <string name="title_readlater_fragment">Read Later</string>

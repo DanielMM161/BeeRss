@@ -47,7 +47,7 @@ class ThemeDialogFragment : BaseBottomSheetDialogFragment<ItemThemeOptionsBindin
 	}
 
 	private fun setTheme(theme: String) {
-		viewModel.setTheme(theme).observe(this) {
+	/*	viewModel.setTheme(theme).observe(this) {
 			when (it) {
 				is Resource.Success -> {
 					if (it.data!!) {
@@ -55,7 +55,7 @@ class ThemeDialogFragment : BaseBottomSheetDialogFragment<ItemThemeOptionsBindin
 					}
 				}
 			}
-		}
+		}*/
 	}
 
 	private fun selectedView(view: View, selected: Boolean) {

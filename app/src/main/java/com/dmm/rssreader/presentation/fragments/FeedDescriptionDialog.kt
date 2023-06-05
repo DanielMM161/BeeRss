@@ -37,6 +37,7 @@ class FeedDescriptionDialog(private val feedSelected: FeedUI) : BottomSheetDialo
 
 	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 		dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
+
 		//Disabled dragging
 		dialog.setOnShowListener {
 			val bottomSheet = dialog
@@ -76,11 +77,7 @@ class FeedDescriptionDialog(private val feedSelected: FeedUI) : BottomSheetDialo
 	private fun setUpUI(){
 		setImageResourceImageButton(feedSelected.favourite)
 		binding.title.text = feedSelected.title
-		feedSelected.description.let {
-			if(it != null) {
-				displayHtml(it)
-			}
-		}
+		displayHtml(feedSelected.description)
 	}
 
 	private fun displayHtml(html: String) {
@@ -122,9 +119,10 @@ class FeedDescriptionDialog(private val feedSelected: FeedUI) : BottomSheetDialo
 
 	private fun saveFeed() {
 		binding.save.setOnClickListener {
-			viewModel.saveFavouriteFeed(feedSelected)
-			setImageResourceImageButton(feedSelected.favourite)
-			viewModel.fetchFeedsDeveloper()
+			setImageResourceImageButton(!feedSelected.favourite)
+			viewModel.saveFavouriteFeed(feedSelected) {
+				viewModel.fetchFeedsDeveloper()
+			}
 		}
 	}
 

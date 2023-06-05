@@ -76,6 +76,18 @@ class LoginFragment : Fragment() {
 		}
 	}
 
+	private fun validateLoginForm(email: String, password: String): Boolean {
+		if (email.isEmpty() && password.isEmpty()) {
+			binding.progressBar.gone()
+			handleAlterDialog(
+				message = getString(R.string.email_password_not_empty),
+				title = getString(R.string.title_email_verification),
+			)
+			return false
+		}
+		return true
+	}
+
 	private fun signInGoogleAuthCredential(authCredential: AuthCredential) {
 		binding.progressBar.show()
 		lifecycleScope.launch {
@@ -106,13 +118,7 @@ class LoginFragment : Fragment() {
 			val email = binding.username.editText?.text.toString()
 			val password = binding.password.editText?.text.toString()
 
-			if (email.isEmpty() && password.isEmpty()) {
-				binding.progressBar.gone()
-				handleAlterDialog(
-					message = getString(R.string.email_password_not_empty),
-					title = getString(R.string.title_email_verification),
-				)
-			} else {
+			if (validateLoginForm(email, password)) {
 				lifecycleScope.launch {
 					val result = authViewModel.signInEmailPassword(email, password)
 					when (result) {
