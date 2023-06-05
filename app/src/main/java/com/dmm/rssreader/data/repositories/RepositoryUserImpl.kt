@@ -1,6 +1,6 @@
 package com.dmm.rssreader.data.repositories
 
-import com.dmm.rssreader.domain.repositories.RepositoryFireBase
+import com.dmm.rssreader.domain.repositories.RepositoryUser
 import com.dmm.rssreader.utils.Constants
 import com.dmm.rssreader.utils.Resource
 import com.google.firebase.firestore.DocumentReference
@@ -9,9 +9,9 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class RepositoryFireBaseImpl @Inject constructor(
+class RepositoryUserImpl @Inject constructor(
   private val db: FirebaseFirestore,
-) : RepositoryFireBase {
+) : RepositoryUser {
 
   override suspend fun <T> updateUser(documentPath: String, data: T, property: String): Resource<Boolean> {
     return suspendCoroutine { continuation ->

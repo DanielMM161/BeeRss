@@ -15,7 +15,10 @@ import com.dmm.rssreader.MainApplication
 import com.dmm.rssreader.domain.model.FeedUI
 import com.dmm.rssreader.domain.model.Source
 import com.dmm.rssreader.domain.model.UserProfile
+import com.dmm.rssreader.domain.repositories.RepositoryAuth
 import com.dmm.rssreader.domain.repositories.RepositoryFeeds
+import com.dmm.rssreader.domain.repositories.RepositorySource
+import com.dmm.rssreader.domain.repositories.RepositoryUser
 import com.dmm.rssreader.domain.usecase.*
 import com.dmm.rssreader.utils.Constants
 import com.dmm.rssreader.utils.Constants.THEME_DAY
@@ -40,9 +43,9 @@ import kotlin.time.Duration.Companion.seconds
 class MainViewModel @Inject constructor(
 	app: Application,
 	private val repoFeeds: RepositoryFeeds,
-	private val fireBaseUseCase: FireBaseUseCase,
-	private val sourceUseCase: SourceUseCase,
-	private val authUseCase: AuthUseCase,
+	private val repoUser: RepositoryUser,
+	private val repoSource: RepositorySource,
+	private val repoAuth: RepositoryAuth,
 	private val firebaseAnalytics: FirebaseAnalytics
 ) : AndroidViewModel(app) {
 
@@ -58,7 +61,7 @@ class MainViewModel @Inject constructor(
 
 	init {
 		viewModelScope.launch {
-			sourceUseCase.fetchSources().collect { result ->
+			repoSource.fetchSources().collect { result ->
 				sources = result
 			}
 		}
@@ -69,7 +72,7 @@ class MainViewModel @Inject constructor(
 	}
 
 	fun fetchFeedsDeveloper() = viewModelScope.launch {
-		var listFeed: MutableList<FeedUI> = mutableListOf()
+		val listFeed: MutableList<FeedUI> = mutableListOf()
 
 		userProfile.feeds.forEach { source ->
 			val result = repoFeeds.fetchFeeds(source.baseUrl, source.route, source.title)
@@ -93,15 +96,8 @@ class MainViewModel @Inject constructor(
 		}
 	}
 
-	private fun deleteFeed(sourceTitle: String) {
-		viewModelScope.launch {
-			repoFeeds.deleteFeedLocal(sourceTitle)
-			_developerFeeds.value = Resource.Success(repoFeeds.getAllFeedsLocal())
-		}
-	}
-
 	suspend fun <T> updateUser(data: T, property: String): Resource<Boolean> {
-		return fireBaseUseCase.updateUser(userProfile.email, data, property )
+		return repoUser.updateUser(userProfile.email, data, property )
 	}
 
 	/**
@@ -149,7 +145,7 @@ class MainViewModel @Inject constructor(
 	}
 
 	fun signOut() {
-		authUseCase.signOut()
+		repoAuth.signOut()
 	}
 
 	fun deleteTable() = viewModelScope.launch {

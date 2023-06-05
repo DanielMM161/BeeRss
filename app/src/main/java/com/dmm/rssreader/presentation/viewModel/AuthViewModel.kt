@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import com.dmm.rssreader.domain.model.UserProfile
-import com.dmm.rssreader.domain.usecase.AuthUseCase
+import com.dmm.rssreader.domain.repositories.RepositoryAuth
 import com.dmm.rssreader.domain.usecase.ValidateUseCase
 import com.dmm.rssreader.utils.Resource
 import com.dmm.rssreader.utils.ValidationResult
@@ -19,33 +19,33 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
 	app: Application,
-	private val authUseCase: AuthUseCase,
+	private val repoAuth: RepositoryAuth,
 	private val validateUseCase: ValidateUseCase,
 	private val firebaseAnalytics: FirebaseAnalytics
 ) : AndroidViewModel(app) {
 
 	suspend fun signInWithGoogle(authCredential: AuthCredential): Resource<UserProfile> {
-		return authUseCase.signInWithGoogle(authCredential)
+		return repoAuth.signInWithGoogle(authCredential)
 	}
 
 	suspend fun createUserDocument(user: UserProfile): Resource<UserProfile> {
-		return authUseCase.createUserDocument(user)
+		return repoAuth.createUserDocument(user)
 	}
 
 	suspend fun getUserDocument(documentPath: String): Resource<UserProfile>{
-		return authUseCase.getUserDocument(documentPath)
+		return repoAuth.getUserDocument(documentPath)
 	}
 
 	suspend fun signUp(fullName: String, email: String, password: String): Resource<UserProfile> {
-		return authUseCase.signUp(fullName, email, password)
+		return repoAuth.signUp(fullName, email, password)
 	}
 
 	fun checkUserIsAuthenticated(): FirebaseUser? {
-		return authUseCase.checkUserIsAuthenticated()
+		return repoAuth.checkUserIsAuthenticated()
 	}
 
 	suspend fun signInEmailPassword(email: String, password: String): Resource<Boolean>  {
-		return authUseCase.signInEmailPassword(email, password)
+		return repoAuth.signInEmailPassword(email, password)
 	}
 
 	fun validateEmail(email: String): ValidationResult {
@@ -65,11 +65,11 @@ class AuthViewModel @Inject constructor(
 	}
 
 	fun resetPassword(email: String): MutableLiveData<Resource<Nothing>> {
-		return authUseCase.resetPassword(email)
+		return repoAuth.resetPassword(email)
 	}
 
 	suspend fun sendEmailVerification(): Resource<Nothing> {
-		return authUseCase.sendEmailVerification()
+		return repoAuth.sendEmailVerification()
 	}
 
 	fun logEvent(parameter: String) {

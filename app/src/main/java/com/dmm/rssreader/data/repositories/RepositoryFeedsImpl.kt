@@ -16,8 +16,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class RepositoryFeedsImpl @Inject constructor(
-	private val feedsDao: FeedsDao,
-	private val db: FirebaseFirestore,
+	private val feedsDao: FeedsDao
 ) : RepositoryFeeds {
 
 	override suspend fun fetchFeeds(baseUrl: String, route: String, sourceTitle: String): List<FeedUI> {

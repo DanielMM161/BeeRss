@@ -26,4 +26,9 @@ abstract class RepositoriesModule {
 		repoSource: RepositorySourceImpl
 	): RepositorySource
 
+	@Binds
+	abstract fun bindRepositoryUser(
+		repoUser: RepositoryUserImpl
+	): RepositoryUser
+
 }

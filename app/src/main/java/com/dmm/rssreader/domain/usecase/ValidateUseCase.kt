@@ -70,8 +70,4 @@ class ValidateUseCase @Inject constructor() {
 			successful = true
 		)
 	}
-
-	fun asString(context: Context, resId: Int): String {
-		return context.getString(resId)
-	}
 }
