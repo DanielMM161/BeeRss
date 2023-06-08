@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.ActivityMainBinding
@@ -34,17 +33,12 @@ class MainActivity : AppCompatActivity() {
 			.findFragmentById(R.id.fragment_container) as NavHostFragment
 		navController = navHostFragment.navController
 
-		// BottomNavigation Configuration
-		val appConfiguration = AppBarConfiguration(setOf(R.id.homeFragment, R.id.readLaterFragment, R.id.settingsFragment))
-		binding.toolbar.setupWithNavController(navController, appConfiguration)
 		binding.bottomNavigation.setupWithNavController(navController)
 
 		if(!viewModel.userProfileInitialized()) {
 			viewModel.userProfile = getUserFromActivity()
 		}
 
-		setSupportActionBar(binding.toolbar)
-		destinationChangedListener()
 		setShadowColor()
 	}
 
@@ -57,31 +51,10 @@ class MainActivity : AppCompatActivity() {
 		return userProfile
 	}
 
-	private fun destinationChangedListener() {
-		navController.addOnDestinationChangedListener { _, destination, _ ->
-			when(destination.id) {
-				R.id.homeFragment -> {
-					setTitleMateriaToolbar(R.string.second_title_home_fragment)
-				}
-				R.id.readLaterFragment -> {
-					setTitleMateriaToolbar(R.string.title_readlater_fragment)
-				}
-				R.id.settingsFragment -> {
-					setTitleMateriaToolbar(R.string.title_settings_fragment)
-				}
-			}
-		}
-	}
-
-	fun setTitleMateriaToolbar(resId: Int, parameter: String = "") {
-		binding.toolbar.title = getString(resId, parameter)
-	}
-
 	private fun setShadowColor() {
 		when(isNightMode(resources)) {
 			true -> {
 				binding.bottomShadow.background = getDrawable(R.drawable.shadow_bottom_navigation_dark)
-				binding.barlayoutShadow.background = getDrawable(R.drawable.shadow_bottom_navigation_dark)
 			}
 			else -> {}
 		}

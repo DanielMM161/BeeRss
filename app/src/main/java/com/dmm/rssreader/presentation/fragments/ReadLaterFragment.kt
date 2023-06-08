@@ -3,6 +3,7 @@ package com.dmm.rssreader.presentation.fragments
 import android.content.Intent
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,10 +22,16 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 ) {
 
 	private lateinit var feedAdapter: FeedAdapter
+	private lateinit var readLaterRV: RecyclerView
+	private lateinit var totalFeedText: TextView
 
 	override fun setupUI() {
 		super.setupUI()
+
+		readLaterRV = binding.listLayout.rvFeeds
+		totalFeedText = binding.toolbarHome.totalFeeds
 		setUpRecyclerView()
+
 		viewModel.getFavouriteFeeds()
 		collectFavouriteFeeds()
 	}
@@ -33,6 +40,8 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 		lifecycleScope.launch(Dispatchers.IO) {
 			viewModel.favouritesFeeds.collect {
 				withContext(Dispatchers.Main) {
+					totalFeedText.text = it.size.toString()
+					binding.listLayout.search.visibility = if(it.isEmpty()) View.GONE else View.VISIBLE
 					binding.noReadLater.visibility = if(it.isEmpty()) View.VISIBLE else View.GONE
 					binding.willBeHere.visibility = if(it.isEmpty()) View.VISIBLE else View.GONE
 				}
@@ -55,7 +64,7 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 		}
 	}
 
-	private fun setUpRecyclerView() = binding.rvReadLater.apply {
+	private fun setUpRecyclerView() = readLaterRV.apply {
 		feedAdapter = FeedAdapter()
 		adapter = feedAdapter
 		layoutManager = LinearLayoutManager(requireContext())
@@ -86,7 +95,7 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 		}
 
 		ItemTouchHelper(itemTouchHelperCallback).apply {
-			attachToRecyclerView(binding.rvReadLater)
+			attachToRecyclerView(readLaterRV)
 		}
 	}
 

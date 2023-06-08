@@ -1,16 +1,17 @@
 package com.dmm.rssreader.presentation.fragments
 
 import android.content.Intent
+import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.HomeFragmentBinding
 import com.dmm.rssreader.domain.extension.gone
 import com.dmm.rssreader.domain.extension.show
-import com.dmm.rssreader.presentation.activities.MainActivity
 import com.dmm.rssreader.presentation.adapters.FeedAdapter
 import com.dmm.rssreader.utils.Utils.Companion.isNightMode
 import kotlinx.coroutines.Dispatchers
@@ -22,9 +23,16 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 ) {
 
 	private lateinit var feedAdapter: FeedAdapter
+	private lateinit var feedRV: RecyclerView
+	private lateinit var totalFeedText: TextView
+	private lateinit var searchView: SearchView
 
 	override fun setupUI() {
 		super.setupUI()
+
+		feedRV = binding.listLayout.rvFeeds
+		totalFeedText = binding.toolbarHome.totalFeeds
+		searchView = binding.listLayout.search
 
 		lifecycleScope.launch(Dispatchers.IO) {
 			viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -40,7 +48,7 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 	}
 
 	private fun searchFeed() {
-		binding.search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+		searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 			override fun onQueryTextSubmit(query: String?): Boolean {
 				query?.let {
 					if(it.isNotEmpty()) {
@@ -73,7 +81,7 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 		}
 	}
 
-	private fun setUpRecyclerView() = binding.rvFeeds.apply {
+	private fun setUpRecyclerView() = feedRV.apply {
 		feedAdapter = FeedAdapter()
 		adapter = feedAdapter
 		layoutManager = LinearLayoutManager(requireContext())
@@ -105,8 +113,8 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 						binding.noItemText.gone()
 						binding.noItemBtn.gone()
 					}
-					binding.totalArticles = feeds.size
-					setMaterialToolbarFromActivity(feeds.size.toString())
+					totalFeedText.text = feeds.size.toString()
+
 					if(viewModel.searchText.isNotEmpty()) {
 						searchFeeds()
 					} else {
@@ -143,21 +151,17 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 		}
 	}
 
-	private fun setMaterialToolbarFromActivity(feedsSize: String?) {
-		(activity as MainActivity?)?.setTitleMateriaToolbar(R.string.title_home_fragment, feedsSize ?: "")
-	}
-
 	private fun searchFeeds() {
 		val text = viewModel.searchText
 		if(text.isNotEmpty()) {
 			val list = viewModel.findFeeds(text)
 			if(list != null) {
-				setMaterialToolbarFromActivity(list.size.toString())
+				totalFeedText.text = list.size.toString()
 				feedAdapter.differ.submitList(list)
 			}
 		} else {
 			val list = viewModel.developerFeeds.value.data
-			setMaterialToolbarFromActivity(list?.size.toString())
+			totalFeedText.text = list?.size.toString()
 			feedAdapter.differ.submitList(list)
 		}
 	}
