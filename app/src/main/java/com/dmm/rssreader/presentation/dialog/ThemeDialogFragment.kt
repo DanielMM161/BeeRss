@@ -1,4 +1,4 @@
-package com.dmm.rssreader.presentation.fragments
+package com.dmm.rssreader.presentation.dialog
 
 import android.view.View
 import android.view.ViewGroup
@@ -7,14 +7,13 @@ import androidx.core.view.forEach
 import com.dmm.rssreader.databinding.ItemThemeOptionsBinding
 import com.dmm.rssreader.utils.Constants.THEME_DAY
 import com.dmm.rssreader.utils.Constants.THEME_NIGHT
-import com.dmm.rssreader.utils.Resource
 
-class ThemeDialogFragment : BaseBottomSheetDialogFragment<ItemThemeOptionsBinding>(
+class ThemeDialogFragment : CustomBottomDialog<ItemThemeOptionsBinding>(
 	ItemThemeOptionsBinding::inflate
 ) {
 
-	override fun setupUI() {
-		super.setupUI()
+	override fun onViewCreated() {
+		super.onViewCreated()
 		autoSelectedTheme()
 		selectedTheme()
 	}

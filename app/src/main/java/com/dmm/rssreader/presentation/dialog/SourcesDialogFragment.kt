@@ -1,4 +1,4 @@
-package com.dmm.rssreader.presentation.fragments
+package com.dmm.rssreader.presentation.dialog
 
 import android.content.DialogInterface
 import androidx.lifecycle.lifecycleScope
@@ -11,14 +11,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class SourcesDialogFragment : BaseBottomSheetDialogFragment<SourcesDialogFragmentBinding>(
+class SourcesDialogFragment : CustomBottomDialog<SourcesDialogFragmentBinding>(
 	SourcesDialogFragmentBinding::inflate
 ) {
 
 	private var onCancelClick: (() -> Unit)? = null
 
-	override fun setupUI() {
-		super.setupUI()
+	override fun onViewCreated() {
+		super.onViewCreated()
 		binding.listSources.apply {
 			adapter = SourcesAdapter(viewModel.sources, viewModel.userProfile.feeds) { source ->
 				setFeed(source)

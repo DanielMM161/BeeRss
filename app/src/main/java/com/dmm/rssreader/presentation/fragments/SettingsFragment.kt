@@ -5,14 +5,16 @@ import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.SettingsFragmentBinding
 import com.dmm.rssreader.presentation.activities.AuthActivity
 import com.dmm.rssreader.presentation.activities.MainActivity
+import com.dmm.rssreader.presentation.dialog.SourcesDialogFragment
+import com.dmm.rssreader.presentation.dialog.ThemeDialogFragment
 import com.dmm.rssreader.utils.Utils.Companion.alertDialog
 
 class SettingsFragment : BaseFragment<SettingsFragmentBinding>(
   SettingsFragmentBinding::inflate
 ) {
 
-  override fun setupUI() {
-    super.setupUI()
+  override fun onViewCreated() {
+    super.onViewCreated()
 
     binding.name.text = viewModel.userProfile.fullName
     binding.email.text = viewModel.userProfile.email

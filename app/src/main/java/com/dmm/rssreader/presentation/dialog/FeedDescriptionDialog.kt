@@ -1,73 +1,33 @@
-package com.dmm.rssreader.presentation.fragments
+package com.dmm.rssreader.presentation.dialog
 
 import QuoteSpanClass
-import android.app.Dialog
 import android.content.Intent
-import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
 import android.text.Spannable
 import android.text.method.LinkMovementMethod
 import android.text.style.QuoteSpan
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
-import androidx.lifecycle.ViewModelProvider
 import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.FeedDescriptionDialogBinding
 import com.dmm.rssreader.domain.extension.gone
 import com.dmm.rssreader.domain.extension.show
 import com.dmm.rssreader.domain.model.FeedUI
-import com.dmm.rssreader.presentation.viewModel.MainViewModel
 import com.dmm.rssreader.utils.ImageGetter
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
+class FeedDescriptionDialog(private val feedSelected: FeedUI) : CustomDialog<FeedDescriptionDialogBinding>(
+	FeedDescriptionDialogBinding::inflate,
+	R.layout.feed_description_dialog,
+	R.style.FullScreenDialog
+) {
 
-class FeedDescriptionDialog(private val feedSelected: FeedUI) : BottomSheetDialogFragment() {
-
-	private lateinit var binding: FeedDescriptionDialogBinding
-	private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
-	private lateinit var dialog: BottomSheetDialog
-	private lateinit var viewModel: MainViewModel
-
-	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-		dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
-
-		//Disabled dragging
-		dialog.setOnShowListener {
-			val bottomSheet = dialog
-				.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
-
-			if (bottomSheet != null) {
-				val behavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(bottomSheet)
-				behavior.isDraggable = false
-			}
-		}
-		return dialog
-	}
-
-	override fun onCreateView(
-		inflater: LayoutInflater,
-		container: ViewGroup?,
-		savedInstanceState: Bundle?
-	): View? {
-		return inflater.inflate(R.layout.feed_description_dialog, container, false)
-	}
-
-	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-		super.onViewCreated(view, savedInstanceState)
-		binding = FeedDescriptionDialogBinding.bind(view)
-		viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
-		bottomSheetBehavior = BottomSheetBehavior.from(view.parent as View)
-		bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-		val layout = binding.bottomSheetLayout
-		layout.minimumHeight = Resources.getSystem().displayMetrics.heightPixels
-
+	override fun onViewCreated() {
+		super.onViewCreated()
 		setUpUI()
 		saveFeed()
 		closeDialog()
@@ -82,7 +42,6 @@ class FeedDescriptionDialog(private val feedSelected: FeedUI) : BottomSheetDialo
 
 	private fun displayHtml(html: String) {
 		val imageGetter = ImageGetter(resources, binding.htmlViewer, requireContext())
-
 		val styledText = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_LIST, imageGetter, null)
 
 		replaceQuoteSpans(styledText as Spannable)

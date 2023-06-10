@@ -12,6 +12,7 @@ import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.ReadLaterFragmentBinding
 import com.dmm.rssreader.domain.model.FeedUI
 import com.dmm.rssreader.presentation.adapters.FeedAdapter
+import com.dmm.rssreader.presentation.dialog.FeedDescriptionDialog
 import com.dmm.rssreader.utils.NotificationsUI.Companion.snackBar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,10 +26,10 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 	private lateinit var readLaterRV: RecyclerView
 	private lateinit var totalFeedText: TextView
 
-	override fun setupUI() {
-		super.setupUI()
+	override fun onViewCreated() {
+		super.onViewCreated()
 
-		readLaterRV = binding.listLayout.rvFeeds
+		readLaterRV = binding.rvFeeds
 		totalFeedText = binding.toolbarHome.totalFeeds
 		setUpRecyclerView()
 
@@ -41,7 +42,6 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 			viewModel.favouritesFeeds.collect {
 				withContext(Dispatchers.Main) {
 					totalFeedText.text = it.size.toString()
-					binding.listLayout.search.visibility = if(it.isEmpty()) View.GONE else View.VISIBLE
 					binding.noReadLater.visibility = if(it.isEmpty()) View.VISIBLE else View.GONE
 					binding.willBeHere.visibility = if(it.isEmpty()) View.VISIBLE else View.GONE
 				}
@@ -100,8 +100,8 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 	}
 
 	private fun itemClickListener() = feedAdapter.setOnItemClickListener {
-		val feedDescriptionDialog = FeedDescriptionDialog(it.copy())
-		feedDescriptionDialog.show(parentFragmentManager, feedDescriptionDialog.tag)
+		val feedDescriptionDialogOld = FeedDescriptionDialog(it.copy())
+		feedDescriptionDialogOld.show(parentFragmentManager, feedDescriptionDialogOld.tag)
 	}
 
 	private fun readLaterItemClickListener() = feedAdapter.setReadLaterOnItemClickListener {

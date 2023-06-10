@@ -13,6 +13,8 @@ import com.dmm.rssreader.databinding.HomeFragmentBinding
 import com.dmm.rssreader.domain.extension.gone
 import com.dmm.rssreader.domain.extension.show
 import com.dmm.rssreader.presentation.adapters.FeedAdapter
+import com.dmm.rssreader.presentation.dialog.FeedDescriptionDialog
+import com.dmm.rssreader.presentation.dialog.SourcesDialogFragment
 import com.dmm.rssreader.utils.Utils.Companion.isNightMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -27,12 +29,13 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 	private lateinit var totalFeedText: TextView
 	private lateinit var searchView: SearchView
 
-	override fun setupUI() {
-		super.setupUI()
+	override fun onViewCreated() {
+		super.onViewCreated()
 
-		feedRV = binding.listLayout.rvFeeds
-		totalFeedText = binding.toolbarHome.totalFeeds
-		searchView = binding.listLayout.search
+		feedRV = binding.rvFeeds
+		totalFeedText = binding.mainToolbar.totalFeeds
+		val menuItem = binding.mainToolbar.topAppBar.menu.findItem(R.id.action_search)
+		searchView = menuItem.actionView as SearchView
 
 		lifecycleScope.launch(Dispatchers.IO) {
 			viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -46,6 +49,7 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 		setColorSwipeRefresh()
 		collectFeedsDeveloper()
 	}
+
 
 	private fun searchFeed() {
 		searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -129,8 +133,9 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 
 	private fun itemClickListener() = feedAdapter.setOnItemClickListener {
 		viewModel.logSelectItem(it.feedSource)
-		val feedDescriptionDialog = FeedDescriptionDialog(it.copy())
-		feedDescriptionDialog.show(parentFragmentManager, feedDescriptionDialog.tag)
+		val dialogFragment = FeedDescriptionDialog(it)
+		dialogFragment.show(childFragmentManager, "FeedDescriptionDialog")
+
 	}
 
 	private fun readLaterItemClickListener() = feedAdapter.setReadLaterOnItemClickListener {

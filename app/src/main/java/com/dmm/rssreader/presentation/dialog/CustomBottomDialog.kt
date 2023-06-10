@@ -1,7 +1,6 @@
-package com.dmm.rssreader.presentation.fragments
+package com.dmm.rssreader.presentation.dialog
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-abstract class BaseBottomSheetDialogFragment<VB : ViewBinding>(
+abstract class CustomBottomDialog<VB : ViewBinding>(
 	private val bindingInflater: (inflater: LayoutInflater) -> VB
 ) : BottomSheetDialogFragment() {
 
@@ -24,7 +23,7 @@ abstract class BaseBottomSheetDialogFragment<VB : ViewBinding>(
 	private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 	private lateinit var dialog: BottomSheetDialog
 
-	protected open fun setupUI() = Unit
+	protected open fun onViewCreated() = Unit
 
 	override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 		dialog = super.onCreateDialog(savedInstanceState) as BottomSheetDialog
@@ -56,6 +55,6 @@ abstract class BaseBottomSheetDialogFragment<VB : ViewBinding>(
 		viewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
 		bottomSheetBehavior = BottomSheetBehavior.from(view.parent as View)
 		bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-		setupUI()
+		onViewCreated()
 	}
 }
