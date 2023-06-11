@@ -3,11 +3,9 @@ package com.dmm.rssreader.presentation.dialog
 import QuoteSpanClass
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
 import android.text.Spannable
 import android.text.method.LinkMovementMethod
 import android.text.style.QuoteSpan
-import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
@@ -17,8 +15,6 @@ import com.dmm.rssreader.domain.extension.gone
 import com.dmm.rssreader.domain.extension.show
 import com.dmm.rssreader.domain.model.FeedUI
 import com.dmm.rssreader.utils.ImageGetter
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class FeedDescriptionDialog(private val feedSelected: FeedUI) : CustomDialog<FeedDescriptionDialogBinding>(
 	FeedDescriptionDialogBinding::inflate,

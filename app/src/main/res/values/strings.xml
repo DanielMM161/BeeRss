@@ -67,6 +67,7 @@
   <string name="title_settings_fragment">Settings</string>
   <string name="all_articles_settings">All Articles</string>
   <string name="read_later">Read Later</string>
+  <string name="my_sources">My Sources</string>
   <string name="all_sources">All Sources</string>
   <string name="themes">Themes</string>
   <string name="logout">Log Out</string>

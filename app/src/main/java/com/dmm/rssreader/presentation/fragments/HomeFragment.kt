@@ -1,6 +1,8 @@
 package com.dmm.rssreader.presentation.fragments
 
 import android.content.Intent
+import android.util.Log
+import android.view.MenuItem
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
@@ -14,6 +16,7 @@ import com.dmm.rssreader.domain.extension.gone
 import com.dmm.rssreader.domain.extension.show
 import com.dmm.rssreader.presentation.adapters.FeedAdapter
 import com.dmm.rssreader.presentation.dialog.FeedDescriptionDialog
+import com.dmm.rssreader.presentation.dialog.FilterOptionsDialog
 import com.dmm.rssreader.presentation.dialog.SourcesDialogFragment
 import com.dmm.rssreader.utils.Utils.Companion.isNightMode
 import kotlinx.coroutines.Dispatchers
@@ -32,10 +35,11 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 	override fun onViewCreated() {
 		super.onViewCreated()
 
+
 		feedRV = binding.rvFeeds
 		totalFeedText = binding.mainToolbar.totalFeeds
-		val menuItem = binding.mainToolbar.topAppBar.menu.findItem(R.id.action_search)
-		searchView = menuItem.actionView as SearchView
+		val searchItem = binding.mainToolbar.topAppBar.menu.findItem(R.id.action_search)
+		searchView = searchItem.actionView as SearchView
 
 		lifecycleScope.launch(Dispatchers.IO) {
 			viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -45,13 +49,28 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 
 		setUpRecyclerView()
 		onRefreshListener()
-		searchFeed()
+		filterIconClickListener()
+		searchFeedListener()
 		setColorSwipeRefresh()
 		collectFeedsDeveloper()
 	}
 
+	private fun filterIconClickListener() {
+		val filterItem = binding.mainToolbar.topAppBar.menu.findItem(R.id.action_filter)
+		filterItem.setOnMenuItemClickListener { menuItem ->
+			when(menuItem.itemId) {
+				R.id.action_filter -> {
+					FilterOptionsDialog().show(childFragmentManager,"filterOptionsDialog")
+					true
+				}
+				else -> false
+			}
+		}
+	}
 
-	private fun searchFeed() {
+
+
+	private fun searchFeedListener() {
 		searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 			override fun onQueryTextSubmit(query: String?): Boolean {
 				query?.let {
@@ -133,9 +152,7 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 
 	private fun itemClickListener() = feedAdapter.setOnItemClickListener {
 		viewModel.logSelectItem(it.feedSource)
-		val dialogFragment = FeedDescriptionDialog(it)
-		dialogFragment.show(childFragmentManager, "FeedDescriptionDialog")
-
+		FeedDescriptionDialog(it).show(childFragmentManager, "FeedDescriptionDialog")
 	}
 
 	private fun readLaterItemClickListener() = feedAdapter.setReadLaterOnItemClickListener {
