@@ -13,16 +13,5 @@ class FilterOptionsDialog() : CustomDialog<FilterFeedDialogBinding>(
 
 	override fun onViewCreated() {
 		super.onViewCreated()
-		setUpExpandableAdapter()
 	}
-
-	private fun setUpExpandableAdapter() {
-		val title = listOf<String>("TITLE ONE")
-		val mapSource = mutableMapOf<String, List<Source>>()
-		mapSource[title[0]] = viewModel.sources
-		binding.expandableSources.setAdapter(SourceExpandableAdapter(title, mapSource))
-
-	}
-
-
 }
