@@ -5,8 +5,6 @@ import com.dmm.rssreader.data.persistence.FeedsDao
 import com.dmm.rssreader.domain.model.FeedUI
 import com.dmm.rssreader.domain.repositories.RepositoryFeeds
 import com.dmm.rssreader.utils.FeedParser
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.*
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit

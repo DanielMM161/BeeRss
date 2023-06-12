@@ -4,6 +4,7 @@
   <string name="home">Home</string>
   <string name="bookmarks">Read Later</string>
   <string name="settings">Settings</string>
+  <string name="sources">Sources</string>
   <string name="feeds">Feeds</string>
   <string name="theme">Themes</string>
 
@@ -89,9 +90,6 @@
 
   <!-- Feed Description Fragment -->
   <string name="go_website">Go Website</string>
-
-  <!-- Sources Dialog Fragment -->
-  <string name="sources">Sources</string>
 
   <!-- Validate Login/Register -->
   <string name="email_not_blank">Email cannot be blank</string>

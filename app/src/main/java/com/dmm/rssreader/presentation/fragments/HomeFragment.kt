@@ -26,15 +26,12 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 ) {
 
 	private lateinit var feedAdapter: FeedAdapter
-	private lateinit var feedRV: RecyclerView
 	private lateinit var totalFeedText: TextView
 	private lateinit var searchView: SearchView
 
 	override fun onViewCreated() {
 		super.onViewCreated()
 
-
-		feedRV = binding.rvFeeds
 		totalFeedText = binding.mainToolbar.totalFeeds
 		val searchItem = binding.mainToolbar.topAppBar.menu.findItem(R.id.action_search)
 		searchView = searchItem.actionView as SearchView
@@ -102,7 +99,7 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 		}
 	}
 
-	private fun setUpRecyclerView() = feedRV.apply {
+	private fun setUpRecyclerView() = binding.rvFeeds.apply {
 		feedAdapter = FeedAdapter()
 		adapter = feedAdapter
 		layoutManager = LinearLayoutManager(requireContext())

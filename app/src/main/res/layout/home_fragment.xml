@@ -71,5 +71,6 @@
 
       </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
   </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

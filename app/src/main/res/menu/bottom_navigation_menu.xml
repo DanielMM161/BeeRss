@@ -12,6 +12,11 @@
     android:icon="@drawable/bookmarks_48px"/>
 
   <item
+    android:id="@+id/sourcesFragment"
+    android:title="@string/sources"
+    android:icon="@drawable/ic_outline_source_24"/>
+
+  <item
     android:id="@+id/settingsFragment"
     android:title="@string/settings"
     android:icon="@drawable/settings_48px"/>

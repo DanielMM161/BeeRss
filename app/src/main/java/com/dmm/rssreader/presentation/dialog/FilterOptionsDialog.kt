@@ -2,8 +2,6 @@ package com.dmm.rssreader.presentation.dialog
 
 import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.FilterFeedDialogBinding
-import com.dmm.rssreader.domain.model.Source
-import com.dmm.rssreader.presentation.adapters.SourceExpandableAdapter
 
 class FilterOptionsDialog() : CustomDialog<FilterFeedDialogBinding>(
 	FilterFeedDialogBinding::inflate,
@@ -13,5 +11,13 @@ class FilterOptionsDialog() : CustomDialog<FilterFeedDialogBinding>(
 
 	override fun onViewCreated() {
 		super.onViewCreated()
+		onClickSourceLayout()
+	}
+
+	fun onClickSourceLayout() {
+		binding.userFeedsLayout.setOnClickListener {
+			val sourcesDialogFragment = SourcesDialogFragment()
+			sourcesDialogFragment.show(parentFragmentManager, sourcesDialogFragment.tag)
+		}
 	}
 }

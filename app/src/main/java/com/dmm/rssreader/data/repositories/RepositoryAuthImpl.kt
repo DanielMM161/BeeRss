@@ -159,7 +159,7 @@ class RepositoryAuthImpl @Inject constructor(
 			email = email,
 			userUid = userUid,
 			theme = Constants.THEME_DAY,
-			feeds = mutableListOf()
+			sources = mutableListOf()
 		)
 	}
 }

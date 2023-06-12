@@ -74,7 +74,7 @@ class MainViewModel @Inject constructor(
 	fun fetchFeedsDeveloper() = viewModelScope.launch {
 		val listFeed: MutableList<FeedUI> = mutableListOf()
 
-		userProfile.feeds.forEach { source ->
+		userProfile.sources.forEach { source ->
 			val result = repoFeeds.fetchFeeds(source.baseUrl, source.route, source.title)
 			listFeed += result
 
@@ -88,11 +88,11 @@ class MainViewModel @Inject constructor(
 		}
 	}
 
-	fun setUserFeed(source: Source) {
-		if (userProfile.feeds.contains(source)) {
-			userProfile.feeds.remove(source)
+	fun setUserSources(source: Source) {
+		if (userProfile.sources.contains(source)) {
+			userProfile.sources.remove(source)
 		} else {
-			userProfile.feeds.add(source)
+			userProfile.sources.add(source)
 		}
 	}
 

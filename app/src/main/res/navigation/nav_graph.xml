@@ -16,4 +16,8 @@
     android:id="@+id/readLaterFragment"
     android:name="com.dmm.rssreader.presentation.fragments.ReadLaterFragment"
     android:label="ReadLaterFragment" />
+  <fragment
+    android:id="@+id/sourcesFragment"
+    android:name="com.dmm.rssreader.presentation.fragments.SourcesFragment"
+    android:label="SourcesFragment" />
 </navigation>

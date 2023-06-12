@@ -12,7 +12,7 @@ data class UserProfile(
 	var email: String = "",
 	var photoUrl: String = "",
 	var theme: String = "",
-	var feeds: @RawValue MutableList<Source> = mutableListOf(),
+	var sources: @RawValue MutableList<Source> = mutableListOf(),
 	val isAuthenticated: Boolean = false,
 	val userUid: String = "",
 	val favouritesFeeds: @RawValue MutableList<FeedUI> = mutableListOf()

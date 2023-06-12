@@ -23,7 +23,6 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-
     <TextView
       android:id="@+id/title_sort"
       android:layout_width="wrap_content"

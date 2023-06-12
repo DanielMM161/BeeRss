@@ -12,7 +12,7 @@ abstract class GenericBaseAdapter<T, VB: ViewBinding>(
 	private val bindingInflater: (inflater: LayoutInflater) -> VB
 ) : BaseAdapter() {
 
-	private lateinit var _binding: VB
+	lateinit var _binding: VB
 	protected val binding: VB get() = _binding
 	protected open fun getView(item: T) = Unit
 
