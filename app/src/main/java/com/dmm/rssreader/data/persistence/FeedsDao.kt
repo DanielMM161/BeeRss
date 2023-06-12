@@ -8,7 +8,7 @@ interface FeedsDao {
 	@Insert(onConflict = OnConflictStrategy.REPLACE)
 	suspend fun saveFavouriteFeed(feedUI: FeedUI)
 
-	@Query("UPDATE feeds SET favourite=:favourite WHERE title=:title")
+	@Query("UPDATE feeds SET favourite = :favourite WHERE title = :title")
 	suspend fun updateFeed(favourite: Boolean, title: String)
 
 	@Query("DELETE FROM feeds")

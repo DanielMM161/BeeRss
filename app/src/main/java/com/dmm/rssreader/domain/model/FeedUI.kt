@@ -9,7 +9,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity(tableName = "feeds")
 data class FeedUI(
-	@PrimaryKey()
 	@ColumnInfo(name = "title")
 	val title: String = "",
 	@ColumnInfo(name = "feed_source")
@@ -24,4 +23,4 @@ data class FeedUI(
 	val published: String = "",
 	@ColumnInfo(name = "favourite")
 	var favourite: Boolean = false
-): Parcelable
+): Parcelable, BaseModel()

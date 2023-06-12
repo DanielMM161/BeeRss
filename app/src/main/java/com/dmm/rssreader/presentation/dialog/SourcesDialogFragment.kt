@@ -5,7 +5,6 @@ import androidx.lifecycle.lifecycleScope
 import com.dmm.rssreader.databinding.SourcesDialogFragmentBinding
 import com.dmm.rssreader.domain.model.Source
 import com.dmm.rssreader.presentation.adapters.SourcesAdapter
-import com.dmm.rssreader.presentation.adapters.SourcesAdapterOld
 import com.dmm.rssreader.utils.NotificationsUI.Companion.showToast
 import com.dmm.rssreader.utils.Resource
 import kotlinx.coroutines.Dispatchers

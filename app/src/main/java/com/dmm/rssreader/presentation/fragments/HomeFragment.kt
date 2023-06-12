@@ -1,8 +1,6 @@
 package com.dmm.rssreader.presentation.fragments
 
 import android.content.Intent
-import android.util.Log
-import android.view.MenuItem
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle

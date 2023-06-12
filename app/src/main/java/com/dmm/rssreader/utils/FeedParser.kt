@@ -45,8 +45,6 @@ class FeedParser() {
 		var image = ""
 		var published = ""
 
-
-
 		while (parse.next() != XmlPullParser.END_TAG) {
 			if(parse.eventType == XmlPullParser.START_TAG && parser.name == "title") {
 				title = readText(parser)
