@@ -1,10 +1,12 @@
 package com.dmm.rssreader.presentation.dialog
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
+import com.dmm.rssreader.R
 import com.dmm.rssreader.presentation.viewModel.MainViewModel
 
 abstract class CustomDialog<VB : ViewBinding>(

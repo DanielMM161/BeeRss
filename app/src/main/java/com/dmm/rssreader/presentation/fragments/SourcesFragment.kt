@@ -1,8 +1,7 @@
 package com.dmm.rssreader.presentation.fragments
 
-import android.widget.ListView
+import android.util.Log
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.dmm.rssreader.databinding.SourcesFragmentBinding
 import com.dmm.rssreader.domain.model.Source
 import com.dmm.rssreader.presentation.adapters.SourcesFragmentAdapter
@@ -13,10 +12,7 @@ import kotlinx.coroutines.launch
 
 class SourcesFragment : BaseFragment<SourcesFragmentBinding>(
 	SourcesFragmentBinding::inflate
-) {
-
-	private lateinit var listViewSource: ListView
-	private lateinit var listViewAdapter: SourcesFragmentAdapter
+), SourcesFragmentAdapter.Callbacks {
 
 	override fun onViewCreated() {
 		super.onViewCreated()
@@ -24,20 +20,11 @@ class SourcesFragment : BaseFragment<SourcesFragmentBinding>(
 	}
 
 	private fun setUpListView() {
-		binding.listSources.apply {
-			listViewAdapter = SourcesFragmentAdapter(viewModel.sources, viewModel.userProfile.sources) {source ->
-				updateFollowSource(source)
-			}
-			adapter = listViewAdapter
-		}
+		binding.listSources.adapter = SourcesFragmentAdapter(viewModel.sources, viewModel.userProfile.sources, this)
 	}
 
 	private fun updateFollowSource(item: Source) {
 		viewModel.setUserSources(item)
-
-
-
-
 		lifecycleScope.launch(Dispatchers.IO) {
 			val feeds = viewModel.userProfile.sources
 			val result = viewModel.updateUser(feeds, "sources")
@@ -48,6 +35,14 @@ class SourcesFragment : BaseFragment<SourcesFragmentBinding>(
 				else -> {}
 			}
 		}
+	}
+
+	override fun onItemClick(item: Source) {
+		Log.e("hey ---> ", "on item click")
+	}
+
+	override fun onFollowClick(item: Source) {
+		updateFollowSource(item)
 	}
 
 

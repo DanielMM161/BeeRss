@@ -16,9 +16,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include
-      android:id="@+id/main_toolbar"
-      layout="@layout/main_toolbar" />
+    <com.google.android.material.appbar.AppBarLayout
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize">
+
+      <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/topAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:title="@string/sources" />
+
+    </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
       android:layout_width="match_parent"
