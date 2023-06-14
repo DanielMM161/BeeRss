@@ -15,7 +15,6 @@ abstract class GenericRecyclerViewAdapter<T: BaseModel, VB: ViewBinding>(
 	private lateinit var _binding: VB
 	protected val binding: VB get() = _binding
 	protected open fun bind(item: T) = Unit
-	private var onItemClickListener: ((T) -> Unit)? = null
 	private val diffCallback = object: DiffUtil.ItemCallback<T>() {
 		override fun areItemsTheSame(oldItem: T, newItem: T): Boolean {
 			return oldItem.id == newItem.id
@@ -35,16 +34,7 @@ abstract class GenericRecyclerViewAdapter<T: BaseModel, VB: ViewBinding>(
 
 	override fun onBindViewHolder(holder: GenericAdapterVH, position: Int) {
 		val item = differ.currentList[position]
-		holder.itemView.apply {
-			setOnClickListener {
-				onItemClickListener?.let { it(item) }
-			}
-		}
 		bind(item)
-	}
-
-	fun setOnItemClickListener(listener: (T) -> Unit) {
-		onItemClickListener = listener
 	}
 
 	override fun getItemCount(): Int {

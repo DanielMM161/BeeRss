@@ -5,7 +5,6 @@ import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.SettingsFragmentBinding
 import com.dmm.rssreader.presentation.activities.AuthActivity
 import com.dmm.rssreader.presentation.activities.MainActivity
-import com.dmm.rssreader.presentation.dialog.SourcesDialogFragment
 import com.dmm.rssreader.presentation.dialog.ThemeDialogFragment
 import com.dmm.rssreader.utils.Utils.Companion.alertDialog
 
@@ -23,14 +22,6 @@ class SettingsFragment : BaseFragment<SettingsFragmentBinding>(
 
     logout()
     themesOption()
-    feedSourcesOption()
-  }
-
-  private fun feedSourcesOption() {
-    binding.userFeedsLayout.setOnClickListener {
-      val sourcesDialogFragment = SourcesDialogFragment()
-      sourcesDialogFragment.show(parentFragmentManager, sourcesDialogFragment.tag)
-    }
   }
 
   private fun themesOption() {

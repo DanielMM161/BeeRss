@@ -18,7 +18,6 @@ import com.dmm.rssreader.utils.ImageGetter
 
 class FeedDescriptionDialog(private val feedSelected: FeedUI) : CustomDialog<FeedDescriptionDialogBinding>(
 	FeedDescriptionDialogBinding::inflate,
-	R.layout.feed_description_dialog,
 	R.style.FullScreenDialog
 ) {
 

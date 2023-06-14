@@ -1,10 +1,10 @@
 package com.dmm.rssreader.presentation.fragments
 
-import android.util.Log
 import androidx.lifecycle.lifecycleScope
 import com.dmm.rssreader.databinding.SourcesFragmentBinding
 import com.dmm.rssreader.domain.model.Source
 import com.dmm.rssreader.presentation.adapters.SourcesFragmentAdapter
+import com.dmm.rssreader.presentation.dialog.FeedListDialog
 import com.dmm.rssreader.utils.NotificationsUI
 import com.dmm.rssreader.utils.Resource
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +38,7 @@ class SourcesFragment : BaseFragment<SourcesFragmentBinding>(
 	}
 
 	override fun onItemClick(item: Source) {
-		Log.e("hey ---> ", "on item click")
+		FeedListDialog(item).show(childFragmentManager, "FeedListDialog")
 	}
 
 	override fun onFollowClick(item: Source) {

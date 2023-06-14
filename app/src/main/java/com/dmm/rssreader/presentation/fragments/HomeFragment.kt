@@ -7,11 +7,11 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.HomeFragmentBinding
 import com.dmm.rssreader.domain.extension.gone
 import com.dmm.rssreader.domain.extension.show
+import com.dmm.rssreader.domain.model.FeedUI
 import com.dmm.rssreader.presentation.adapters.FeedAdapter
 import com.dmm.rssreader.presentation.dialog.FeedDescriptionDialog
 import com.dmm.rssreader.presentation.dialog.FilterOptionsDialog
@@ -23,7 +23,7 @@ import kotlinx.coroutines.withContext
 
 class HomeFragment : BaseFragment<HomeFragmentBinding>(
 	HomeFragmentBinding::inflate
-) {
+), FeedAdapter.Callbacks {
 
 	private lateinit var feedAdapter: FeedAdapter
 	private lateinit var totalFeedText: TextView
@@ -99,13 +99,10 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 		}
 	}
 
-	private fun setUpRecyclerView() = binding.rvFeeds.apply {
-		feedAdapter = FeedAdapter()
-		adapter = feedAdapter
-		layoutManager = LinearLayoutManager(requireContext())
-		itemClickListener()
-		readLaterItemClickListener()
-		shareClickListener()
+	private fun setUpRecyclerView() {
+		feedAdapter = FeedAdapter(this)
+		binding.rvFeeds.adapter = feedAdapter
+		binding.rvFeeds.layoutManager = LinearLayoutManager(requireContext())
 	}
 
 	/**
@@ -145,29 +142,6 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 		}
 	}
 
-	private fun itemClickListener() = feedAdapter.setOnItemClickListener {
-		viewModel.logSelectItem(it.feedSource)
-		FeedDescriptionDialog(it).show(childFragmentManager, "FeedDescriptionDialog")
-	}
-
-	private fun readLaterItemClickListener() = feedAdapter.setReadLaterOnItemClickListener {
-		viewModel.saveFavouriteFeed(it)
-	}
-
-	private fun shareClickListener() = feedAdapter.setShareClickListener { list ->
-		list[0].let {
-			viewModel.logShare(list[1], list[2])
-			val sendIntent: Intent = Intent().apply {
-				action = Intent.ACTION_SEND
-				putExtra(Intent.EXTRA_TEXT, it)
-				type = "text/plain"
-			}
-
-			val shareIntent = Intent.createChooser(sendIntent, null)
-			startActivity(shareIntent)
-		}
-	}
-
 	private fun searchFeeds() {
 		val text = viewModel.searchText
 		if(text.isNotEmpty()) {
@@ -195,5 +169,28 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 				sourcesDialogFragment.show(parentFragmentManager, sourcesDialogFragment.tag)
 			}
 		}
+	}
+
+	override fun shareClickListener(items: List<String>) {
+		items[0].let {
+			viewModel.logShare(items[1], items[2])
+			val sendIntent: Intent = Intent().apply {
+				action = Intent.ACTION_SEND
+				putExtra(Intent.EXTRA_TEXT, it)
+				type = "text/plain"
+			}
+
+			val shareIntent = Intent.createChooser(sendIntent, null)
+			startActivity(shareIntent)
+		}
+	}
+
+	override fun readLaterOnItemClickListener(item: FeedUI) {
+		viewModel.saveFavouriteFeed(item)
+	}
+
+	override fun setOnItemClickListener(item: FeedUI) {
+		viewModel.logSelectItem(item.feedSource)
+		FeedDescriptionDialog(item).show(childFragmentManager, "FeedDescriptionDialog")
 	}
 }

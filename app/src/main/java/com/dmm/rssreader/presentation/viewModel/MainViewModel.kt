@@ -71,11 +71,15 @@ class MainViewModel @Inject constructor(
 		return this::userProfile.isInitialized
 	}
 
+	suspend fun fetchFeed(source: Source): List<FeedUI> {
+		return repoFeeds.fetchFeeds(source.baseUrl, source.route, source.title)
+	}
+
 	fun fetchFeedsDeveloper() = viewModelScope.launch {
 		val listFeed: MutableList<FeedUI> = mutableListOf()
 
 		userProfile.sources.forEach { source ->
-			val result = repoFeeds.fetchFeeds(source.baseUrl, source.route, source.title)
+			val result = fetchFeed(source)
 			listFeed += result
 
 		}

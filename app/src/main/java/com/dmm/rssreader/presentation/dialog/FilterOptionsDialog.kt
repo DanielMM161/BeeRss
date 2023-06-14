@@ -5,7 +5,6 @@ import com.dmm.rssreader.databinding.FilterFeedDialogBinding
 
 class FilterOptionsDialog() : CustomDialog<FilterFeedDialogBinding>(
 	FilterFeedDialogBinding::inflate,
-	R.layout.filter_feed_dialog,
 	R.style.FullScreenDialog
 ) {
 

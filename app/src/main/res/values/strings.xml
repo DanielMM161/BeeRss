@@ -50,8 +50,6 @@
   <string name="email_was_sent">The Email was sent</string>
 
   <!-- Home Fragment -->
-  <string name="title_home_fragment">All Articles - %s Total</string>
-  <string name="second_title_home_fragment">All Articles</string>
   <string name="all_articles">All articles</string>
   <string name="queryHint">Search Feeds</string>
   <string name="date">/ %s</string>
@@ -104,8 +102,11 @@
   <string name="error_title_dialog">Error</string>
   <string name="error_get_user_document">Some errors has occurred</string>
 
+  <!-- Feed List Dialog -->
+
   <!-- Dialog Alert -->
   <string name="accept">Accept</string>
   <string name="cancel">Cancel</string>
+  <string name="arrow_back">arrow_back</string>
 
 </resources>

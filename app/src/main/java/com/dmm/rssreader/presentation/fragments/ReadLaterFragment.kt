@@ -1,7 +1,6 @@
 package com.dmm.rssreader.presentation.fragments
 
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
@@ -20,7 +19,7 @@ import kotlinx.coroutines.withContext
 
 class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 	ReadLaterFragmentBinding::inflate
-) {
+), FeedAdapter.Callbacks {
 
 	private lateinit var feedAdapter: FeedAdapter
 	private lateinit var readLaterRV: RecyclerView
@@ -35,6 +34,7 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 
 		viewModel.getFavouriteFeeds()
 		collectFavouriteFeeds()
+		deleteItemSwipe()
 	}
 
 	private fun collectFavouriteFeeds() {
@@ -57,21 +57,16 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 		val message = getString(R.string.delete_feed, feed.title)
 		snackBar(binding.root, message) {
 			// On Undo Action
-			Log.e("handleSnackBar ---> ", "${feed.favourite}")
 			viewModel.saveFavouriteFeed(feed) {
 				viewModel.getFavouriteFeeds()
 			}
 		}
 	}
 
-	private fun setUpRecyclerView() = readLaterRV.apply {
-		feedAdapter = FeedAdapter()
-		adapter = feedAdapter
-		layoutManager = LinearLayoutManager(requireContext())
-		deleteItemSwipe()
-		itemClickListener()
-		readLaterItemClickListener()
-		shareClickListener()
+	private fun setUpRecyclerView() {
+		feedAdapter = FeedAdapter(this)
+		binding.rvFeeds.adapter = feedAdapter
+		binding.rvFeeds.layoutManager = LinearLayoutManager(requireContext())
 	}
 
 	private fun deleteItemSwipe() {
@@ -99,18 +94,9 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 		}
 	}
 
-	private fun itemClickListener() = feedAdapter.setOnItemClickListener {
-		val feedDescriptionDialogOld = FeedDescriptionDialog(it.copy())
-		feedDescriptionDialogOld.show(parentFragmentManager, feedDescriptionDialogOld.tag)
-	}
-
-	private fun readLaterItemClickListener() = feedAdapter.setReadLaterOnItemClickListener {
-		handleSnackBar(it)
-	}
-
-	private fun shareClickListener() = feedAdapter.setShareClickListener { list ->
-		list[0].let {
-			viewModel.logShare(list[1], list[2])
+	override fun shareClickListener(items: List<String>) {
+		items[0].let {
+			viewModel.logShare(items[1], items[2])
 			val sendIntent: Intent = Intent().apply {
 				action = Intent.ACTION_SEND
 				putExtra(Intent.EXTRA_TEXT, it)
@@ -120,5 +106,14 @@ class ReadLaterFragment : BaseFragment<ReadLaterFragmentBinding>(
 			val shareIntent = Intent.createChooser(sendIntent, null)
 			startActivity(shareIntent)
 		}
+	}
+
+	override fun readLaterOnItemClickListener(item: FeedUI) {
+		handleSnackBar(item)
+	}
+
+	override fun setOnItemClickListener(item: FeedUI) {
+		viewModel.logSelectItem(item.feedSource)
+		FeedDescriptionDialog(item).show(childFragmentManager, "FeedDescriptionDialog")
 	}
 }

@@ -28,7 +28,6 @@ abstract class BaseFragment<VB : ViewBinding>(
 		container: ViewGroup?,
 		savedInstanceState: Bundle?
 	): View? {
-
 		_binding = bindingInflater.invoke(inflater)
 		onCreateView()
 
