@@ -1,42 +1,70 @@
 package com.dmm.rssreader.presentation.adapters
 
-import android.widget.ImageView
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.dmm.rssreader.R
 import com.dmm.rssreader.databinding.ItemFeedBinding
 import com.dmm.rssreader.domain.model.FeedUI
 
 class FeedAdapter(
 	private val callbacks: Callbacks
-) : GenericRecyclerViewAdapter<FeedUI, ItemFeedBinding>(
-	ItemFeedBinding::inflate
-) {
+) : RecyclerView.Adapter<FeedAdapter.FeedAdapterViewHolder>() {
 
-	override fun bind(item: FeedUI) {
-		super.bind(item)
-		binding.feed = item
-		setImageResourceImageButton(binding.save, item.favourite)
+	inner class FeedAdapterViewHolder(private val binding: ItemFeedBinding) : RecyclerView.ViewHolder(binding.root) {
+		fun bind(feedUI: FeedUI) {
+			binding.feed = feedUI
+			setImageResourceImageButton(binding, feedUI.favourite)
 
-		binding.cardLayout.setOnClickListener {
-			callbacks.setOnItemClickListener(item)
-		}
+			binding.share.setOnClickListener {
+				callbacks.shareClickListener(listOf(feedUI.link ?: "", feedUI.feedSource, feedUI.title))
+			}
 
-		binding.share.setOnClickListener {
-			callbacks.shareClickListener(listOf(item.link ?: "", item.feedSource, item.title))
-		}
-
-		binding.save.apply {
-			setOnClickListener {
-				setImageResourceImageButton(this, !item.favourite)
-				callbacks.readLaterOnItemClickListener(item)
+			binding.save.setOnClickListener {
+				callbacks.readLaterOnItemClickListener(feedUI)
+				setImageResourceImageButton(binding, !feedUI.favourite)
 			}
 		}
 	}
 
-	private fun setImageResourceImageButton(imageView: ImageView, favourite: Boolean) {
+	private val diffCallback = object: DiffUtil.ItemCallback<FeedUI>() {
+		override fun areItemsTheSame(oldItem: FeedUI, newItem: FeedUI): Boolean {
+			return oldItem.title == newItem.title
+		}
+
+		override fun areContentsTheSame(oldItem: FeedUI, newItem: FeedUI): Boolean {
+			return oldItem == newItem
+		}
+	}
+
+	val differ = AsyncListDiffer(this, diffCallback)
+
+	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedAdapterViewHolder {
+		val binding = ItemFeedBinding.inflate(LayoutInflater.from(parent.context))
+		return FeedAdapterViewHolder(binding)
+	}
+
+	override fun onBindViewHolder(holder: FeedAdapter.FeedAdapterViewHolder, position: Int) {
+		val item = differ.currentList[position]
+		holder.itemView.apply {
+			setOnClickListener {
+				callbacks.setOnItemClickListener(item)
+			}
+		}
+		holder.bind(item)
+	}
+
+	override fun getItemCount(): Int {
+		return differ.currentList.size
+	}
+
+	private fun setImageResourceImageButton(binding: ItemFeedBinding, favourite: Boolean) {
 		if(favourite) {
-			imageView.setImageResource(R.drawable.bookmark_add_fill)
+			binding.save.setImageResource(R.drawable.bookmark_add_fill)
 		} else {
-			imageView.setImageResource(R.drawable.bookmark_add)
+			binding.save.setImageResource(R.drawable.bookmark_add)
 		}
 	}
 

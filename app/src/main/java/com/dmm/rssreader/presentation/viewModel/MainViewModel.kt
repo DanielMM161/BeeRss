@@ -63,6 +63,7 @@ class MainViewModel @Inject constructor(
 		viewModelScope.launch {
 			repoSource.fetchSources().collect { result ->
 				sources = result
+				fetchFeedsDeveloper()
 			}
 		}
 	}
@@ -76,10 +77,11 @@ class MainViewModel @Inject constructor(
 	}
 
 	fun fetchFeedsDeveloper() = viewModelScope.launch {
+		Log.e("fetchFeedsDeveloper --> ", "fetchFeedsDeveloper")
 		val listFeed: MutableList<FeedUI> = mutableListOf()
 
 		userProfile.sources.forEach { source ->
-			val result = fetchFeed(source)
+			val result = sortedFeed(fetchFeed(source))
 			listFeed += result
 
 		}
@@ -152,8 +154,9 @@ class MainViewModel @Inject constructor(
 		repoAuth.signOut()
 	}
 
-	fun deleteTable() = viewModelScope.launch {
+	suspend fun deleteTable() {
 		repoFeeds.deleteTable()
+		Log.e("DELETING TABLE --> ", "DELETING")
 	}
 
 	fun logSelectItem(value: String) {

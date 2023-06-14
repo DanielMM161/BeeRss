@@ -111,8 +111,10 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 	 */
 	private fun onRefreshListener() {
 		binding.swipeRefresh.setOnRefreshListener {
-			viewModel.deleteTable()
-			viewModel.fetchFeedsDeveloper()
+			lifecycleScope.launch {
+				viewModel.deleteTable()
+				viewModel.fetchFeedsDeveloper()
+			}
 		}
 	}
 
@@ -132,9 +134,8 @@ class HomeFragment : BaseFragment<HomeFragmentBinding>(
 
 					if(viewModel.searchText.isNotEmpty()) {
 						searchFeeds()
-					} else {
-						feedAdapter.differ.submitList(feeds)
 					}
+
 					binding.swipeRefresh.isRefreshing = false
 					feedAdapter.differ.submitList(feeds)
 				}

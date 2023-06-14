@@ -26,7 +26,6 @@ class FeedListDialog(private val sourceSelected: Source) : CustomDialog<FeedList
 		binding.arrowBack.setOnClickListener {
 			dismiss()
 		}
-
 	}
 
 	private fun fetchFeeds() {

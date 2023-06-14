@@ -9,8 +9,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 @Entity(tableName = "feeds")
 data class FeedUI(
-	@ColumnInfo(name = "title")
-	val title: String = "",
 	@ColumnInfo(name = "feed_source")
 	val feedSource: String = "",
 	@ColumnInfo(name = "description")

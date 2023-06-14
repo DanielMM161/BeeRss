@@ -71,17 +71,13 @@ class FeedParser() {
 			image = getImageFromContent(description)
 		}
 
-		return FeedUI(
-			title,
-			feedSource,
-			description,
-			link,
-			image,
-			published
-		)
+		val feedUI = FeedUI(feedSource, description, link, image, published)
+		feedUI.title = title
+
+		return feedUI
 	}
 
-	fun parseDate(dateString: String): String {
+	private fun parseDate(dateString: String): String {
 		var result = ""
 		val dateFormats: List<String> = listOf(DATE_PATTERN_1, DATE_PATTERN_2, DATE_PATTERN_3,DATE_PATTERN_4)
 		run lit@{
